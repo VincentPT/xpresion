@@ -53,31 +53,33 @@ namespace xpression {
         executor->runCode();
     }
 
-    int getResultInt() {
+    int ExpressionCpp::getResultInt() {
         throw std::runtime_error("Not implemeted");
     }
 
-    bool getResultBool() {
+    bool ExpressionCpp::getResultBool() {
         throw std::runtime_error("Not implemeted");
     }
 
-    float getResultFloat() {
+    float ExpressionCpp::getResultFloat() {
         throw std::runtime_error("Not implemeted");
     }
 
-    double getResultDouble() {
+    double ExpressionCpp::getResultDouble() {
         throw std::runtime_error("Not implemeted");
     }
 
-    long long getResultLong() {
+    long long ExpressionCpp::getResultLong() {
         throw std::runtime_error("Not implemeted");
     }
 
-    const char* getResultString() {
+    const char* ExpressionCpp::getResultString() {
+        auto& executor = _pInternalExpresion->_compiledResult;
+        ((std::string*)executor->getReturnData())->c_str();
         throw std::runtime_error("Not implemeted");
     }
 
-    const wchar_t* getResultWString() {
+    const wchar_t* ExpressionCpp::getResultWString() {
         throw std::runtime_error("Not implemeted");
     }
 }
