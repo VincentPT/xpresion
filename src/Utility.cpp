@@ -1,6 +1,6 @@
 #include "Utility.h"
 
-namespace dynamicexp {
+namespace xpression {
     DataType dynamicToStatic(const BasicTypes& basicTypes, int dynamicType) {
         if(dynamicType == basicTypes.TYPE_BOOL) {
             return DataType::Boolean;

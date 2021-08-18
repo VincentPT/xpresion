@@ -1,7 +1,7 @@
 #include "ScopedExpresionContext.h"
 #include "ExpressionContext.h"
 
-namespace dynamicexp {
+namespace xpression {
     ScopedExpresionContext::ScopedExpresionContext() {
         _pPreviousExpressionContext = ExpressionContext::getCurrentContext();
         _pExpressionContext = new ExpressionContext();

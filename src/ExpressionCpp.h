@@ -12,12 +12,12 @@
 
 #include "DataType.h"
 
-namespace dynamicexp {
+namespace xpression {
     class ExcutionContext;
+    class InternalExpressionCpp;
 
     class EXPRESSIONCPP_API ExpressionCpp {
-        wchar_t* _expStr;
-        ExcutionContext* _excutionContext;
+        InternalExpressionCpp* _pInternalExpresion;
         DataType _resultType;
     protected:
         void compiled();

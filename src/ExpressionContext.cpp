@@ -1,7 +1,7 @@
 #include "ExpressionContext.h"
 #include "SimpleCompilerSuite.h"
 
-namespace dynamicexp {
+namespace xpression {
 #if _WIN32 || _WIN64
 	__declspec(thread) ExpressionContext* _threadExpressionContext = nullptr;
 // Check GCC

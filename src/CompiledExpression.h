@@ -17,7 +17,7 @@
 
 using namespace ffscript;
 
-namespace dynamicexp {
+namespace xpression {
     typedef shared_ptr<ExpUnitExecutor> ExpUnitExecutorRef;
 
     class CompiledExpression {

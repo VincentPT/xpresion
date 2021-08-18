@@ -12,8 +12,6 @@ SET (PROJECT_SOURCE_FILES
 	ExpressionContext.cpp
 	ScopedExpresionContext.h
 	ScopedExpresionContext.cpp
-	ExecutionContext.h
-	ExecutionContext.cpp
 	Utility.cpp
 	Utility.h
 )

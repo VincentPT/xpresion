@@ -1,17 +1,30 @@
 #include "ExpressionCpp.h"
 #include "SimpleCompilerSuite.h"
 #include "ExpressionContext.h"
-#include "ExecutionContext.h"
-
 #include "utility.h"
 
 #include <exception>
+#include <string.h>
 
-namespace dynamicexp {
-    ExpressionCpp::ExpressionCpp(const wchar_t* expStr) : _expStr(nullptr), _resultType(DataType::Unknown) {
+
+namespace xpression {
+    class InternalExpressionCpp {
+        friend class ExpressionCpp;
+        ExpressionContext* _compilationContext;
+        ExpUnitExecutorRef _compiledResult;
+        wstring _expresionStr;
+    public:
+        InternalExpressionCpp() {}
+        ~InternalExpressionCpp() {}
+    };
+
+    ExpressionCpp::ExpressionCpp(const wchar_t* expStr) : _resultType(DataType::Unknown) {
+        _pInternalExpresion = new InternalExpressionCpp();
+        _pInternalExpresion->_expresionStr = expStr;
     }
 
     ExpressionCpp::~ExpressionCpp() {
+        delete _pInternalExpresion;
     }
 
     void ExpressionCpp::compiled() {
@@ -24,22 +37,19 @@ namespace dynamicexp {
         auto& typeManager = compilerSuite->getTypeManager();
         auto& basicTypes = typeManager->getBasicTypes();
 
-        auto compilerResult = compilerSuite->compileExpression(_expStr);
+        auto compilerResult = compilerSuite->compileExpression(_pInternalExpresion->_expresionStr);
 
         auto dynamicReturnType = compilerResult->getInternalExpresion()->getRoot()->getReturnType().iType();
         _resultType = dynamicToStatic(basicTypes, dynamicReturnType);
 
         auto& executor = compilerResult->getExecutor();
 
-        if(_excutionContext) {
-            delete _excutionContext;
-        }
-
-        _excutionContext = new ExcutionContext(curentContext, executor);
+        _pInternalExpresion->_compilationContext = curentContext;
+        _pInternalExpresion->_compiledResult = executor;
     }
 
     void ExpressionCpp::evaluate() {
-        auto& executor = _excutionContext->getCompiledResult();
+        auto& executor = _pInternalExpresion->_compiledResult;
         executor->runCode();
     }
 

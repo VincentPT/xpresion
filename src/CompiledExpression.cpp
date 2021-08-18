@@ -1,6 +1,6 @@
 #include "CompiledExpression.h"
 
-namespace dynamicexp {
+namespace xpression {
     CompiledExpression::CompiledExpression(const ExpressionRef& internalExpression, const ExpUnitExecutorRef& executor) :
     _internalExpression(internalExpression), _expresionExecutor(executor) {}
     

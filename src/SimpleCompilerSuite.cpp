@@ -2,7 +2,7 @@
 
 #include <exception>
 
-namespace dynamicexp {
+namespace xpression {
     SimpleCompilerSuite::SimpleCompilerSuite() {
         _pCompiler = (ScriptCompilerRef)(new ScriptCompiler());
 
@@ -25,14 +25,14 @@ namespace dynamicexp {
     SimpleCompilerSuite::~SimpleCompilerSuite() {
     }
 
-    CompiledExpressionRef SimpleCompilerSuite::compileExpression(const wchar_t* expression) {
+    CompiledExpressionRef SimpleCompilerSuite::compileExpression(const std::wstring& expstr) {
 		ExpressionParser parser(_pCompiler.get());
 		_pCompiler->pushScope(_globalScopeRef.get());
 
-		_globalScopeRef->setBeginCompileChar(expression);
+		_globalScopeRef->setBeginCompileChar(expstr.c_str());
 
 		list<ExpUnitRef> units;
-		EExpressionResult eResult = parser.tokenize(expression, units);
+		EExpressionResult eResult = parser.tokenize(expstr, units);
 		_globalScopeRef->setErrorCompilerChar(parser.getLastCompileChar());
 
 		if (eResult != EE_SUCCESS) {

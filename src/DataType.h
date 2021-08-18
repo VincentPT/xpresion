@@ -1,6 +1,6 @@
 #pragma once
 
-namespace dynamicexp {
+namespace xpression {
     enum class DataType : unsigned int {
         Unknown,
         Void,

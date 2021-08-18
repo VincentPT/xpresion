@@ -6,7 +6,7 @@
 
 using namespace ffscript;
 
-namespace dynamicexp {
+namespace xpression {
     DataType dynamicToStatic(const BasicTypes& basicType, int dynamicType);
     int staticToDynamic(const BasicTypes& basicType, DataType staticType);
     DataType cppToStatic(bool);

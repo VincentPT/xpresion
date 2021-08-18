@@ -1,6 +1,6 @@
 #pragma once
 
-namespace dynamicexp {
+namespace xpression {
     class SimpleCompilerSuite;
 
     class ExpressionContext {

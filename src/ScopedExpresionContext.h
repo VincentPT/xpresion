@@ -2,7 +2,7 @@
 
 #include "ExpressionCpp.h"
 
-namespace dynamicexp {
+namespace xpression {
     class ExpressionContext;
 
     class EXPRESSIONCPP_API ScopedExpresionContext {

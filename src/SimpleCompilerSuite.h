@@ -15,10 +15,11 @@
 #include "ExpUnitExecutor.h"
 #include "Preprocessor.h"
 #include "CompiledExpression.h"
+#include <string>
 
 using namespace ffscript;
 
-namespace dynamicexp {
+namespace xpression {
     
     class SimpleCompilerSuite {
         ScriptCompilerRef _pCompiler;
@@ -28,7 +29,7 @@ namespace dynamicexp {
         SimpleCompilerSuite();
         ~SimpleCompilerSuite();
 
-        CompiledExpressionRef compileExpression(const wchar_t* expression);
+        CompiledExpressionRef compileExpression(const std::wstring& expstr);
         const TypeManagerRef& getTypeManager() const;
     };
 }
