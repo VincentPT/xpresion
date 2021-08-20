@@ -1,5 +1,3 @@
 [submodule "lib/ffscript"]
 	path = lib/ffscript
-	url = https://github.com/VincentPT/ffscript.git
-[submodule "lib\\ffscript"]
-	url = https://github.com/VincentPT/xscript
+	url = https://github.com/VincentPT/xscript.git
