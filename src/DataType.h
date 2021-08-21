@@ -11,8 +11,9 @@ namespace xpression {
 		Boolean,
 		Char,
 		Wchar,
+		AsciiString,
+		UnicodeString,
 		String,
-		Wstring,
 		Null,
     };
 }

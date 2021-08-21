@@ -7,7 +7,6 @@ namespace xpression {
 
     class EXPRESSIONCPP_API ExpressionCpp {
         InternalExpressionCpp* _pInternalExpresion;
-        DataType _resultType;
     protected:
         void compile();
     public:
@@ -20,8 +19,7 @@ namespace xpression {
         float getResultFloat();
         double getResultDouble();
         long long getResultLong();
-        const char* getResultString();
-        const wchar_t* getResultWString();
+        const wchar_t* getResultString();
 
         DataType getResultType() const;
     };

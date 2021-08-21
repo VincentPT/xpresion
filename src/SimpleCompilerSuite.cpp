@@ -1,4 +1,5 @@
 #include "SimpleCompilerSuite.h"
+#include "RawStringLib.h"
 
 #include <exception>
 
@@ -17,6 +18,7 @@ namespace xpression {
         typeManager->registerConstants(_pCompiler.get());
 
         importBasicfunction(funcLibHelper);
+		includeRawStringToCompiler(_pCompiler.get());
 
         _pCompiler->beginUserLib();
     }

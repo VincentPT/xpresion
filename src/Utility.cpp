@@ -21,7 +21,7 @@ namespace xpression {
             return DataType::Null;
         }
         if(dynamicType == basicTypes.TYPE_STRING) {
-            return DataType::String;
+            return DataType::AsciiString;
         }
         if(dynamicType == basicTypes.TYPE_VOID) {
             return DataType::Void;
@@ -30,7 +30,10 @@ namespace xpression {
             return DataType::Wchar;
         }
         if(dynamicType == basicTypes.TYPE_WSTRING) {
-            return DataType::Wstring;
+            return DataType::UnicodeString;
+        }
+        if(dynamicType == basicTypes.TYPE_RAWSTRING) {
+            return DataType::String;
         }
 
         return DataType::Unknown;
@@ -53,53 +56,58 @@ namespace xpression {
             return basicTypes.TYPE_LONG;
         case DataType::Null:
             return basicTypes.TYPE_NULL;
-        case DataType::String:
+        case DataType::AsciiString:
             return basicTypes.TYPE_STRING;
         case DataType::Void:
             return basicTypes.TYPE_VOID;
         case DataType::Wchar:
             return basicTypes.TYPE_WCHAR;
-        case DataType::Wstring:
+        case DataType::UnicodeString:
             return basicTypes.TYPE_WSTRING;
+        case DataType::String:
+            return basicTypes.TYPE_RAWSTRING;
         default:
             return DATA_TYPE_UNKNOWN;
         }
         return DATA_TYPE_UNKNOWN;
     }
-
-    DataType cppToStatic(bool) {
+    template <>
+    DataType typeFromCpp<bool>() {
         return DataType::Boolean;
     }
-
-    DataType cppToStatic(int) {
+    template <>
+    DataType typeFromCpp<int>() {
         return DataType::Integer;
     }
 
-    DataType cppToStatic(long long) {
+    template <>
+    DataType typeFromCpp<long long>() {
         return DataType::Long;
     }
 
-    DataType cppToStatic(double) {
+    template <>
+    DataType typeFromCpp<double>() {
         return DataType::Double;
     }
 
-    DataType cppToStatic(float) {
+    template <>
+    DataType typeFromCpp<float>() {
         return DataType::Float;
     }
-
-    DataType cppToStatic(char) {
+    template <>
+    DataType typeFromCpp<char>() {
         return DataType::Char;
     }
-
-    DataType cppToStatic(wchar_t) {
+    template <wchar_t>
+    DataType typeFromCpp() {
         return DataType::Wchar;
     }
-
-    DataType cppToStatic(const std::string&) {
-        return DataType::String;
+    template <>
+    DataType typeFromCpp<std::string>() {
+        return DataType::AsciiString;
     }
-
-    DataType cppToStatic(const std::wstring&) {
-        return DataType::Wstring;
+    template <>
+    DataType typeFromCpp<std::wstring>() {
+        return DataType::UnicodeString;
     }
 }
