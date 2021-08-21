@@ -14,4 +14,8 @@ namespace xpression {
             delete _pExpressionContext;
         }
     }
+
+    void ScopedExpresionContext::setCustomScript(const wchar_t* customScript) {
+        _pExpressionContext->setCustomScript(customScript);
+    }
 }

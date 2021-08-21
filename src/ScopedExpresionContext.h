@@ -11,5 +11,7 @@ namespace xpression {
     public:
         ScopedExpresionContext();
         ~ScopedExpresionContext();
+
+        void setCustomScript(const wchar_t* customScript);
     };
 }

@@ -61,12 +61,21 @@ namespace xpression {
             }
 
             auto compilerSuite = curentContext->getCompilerSuite();
+            if(compilerSuite == nullptr) {
+                throw std::runtime_error("Compiler is no longer exist in current context due to memory saving process is enable");
+            }
+
             auto& typeManager = compilerSuite->getTypeManager();
             auto& basicTypes = typeManager->getBasicTypes();
 
+            auto program = compilerSuite->getCompiler()->getProgram();
+
+            // auto compilerResult = program ? compilerSuite->compileExpressionInProgramContext(_expresionStr) :
+            // compilerSuite->compileExpression(_expresionStr);
+
             auto compilerResult = compilerSuite->compileExpression(_expresionStr);
 
-            auto dynamicReturnType = compilerResult->getInternalExpresion()->getRoot()->getReturnType().iType();
+            auto dynamicReturnType = compilerResult->getInternalExpresionRoot()->getReturnType().iType();
             _resultType = dynamicToStatic(basicTypes, dynamicReturnType);
 
             auto& executor = compilerResult->getExecutor();
@@ -77,7 +86,16 @@ namespace xpression {
 
         void evaluate() {
             if(!_compiledResult) compile();
+            ExpressionContext* curentContext = ExpressionContext::getCurrentContext();
+            if(curentContext) {
+                curentContext->startEvaluating();
+            }
+            
+            Context* context = Context::getCurrent();
+            context->scopeAllocate(0, 0);
             _compiledResult->runCode();
+            context->scopeUnallocate(0, 0);
+
             _evaluated = true;
 
             if(_resultType == DataType::String) {
@@ -141,6 +159,10 @@ namespace xpression {
 
     ExpressionCpp::~ExpressionCpp() {
         delete _pInternalExpresion;
+    }
+
+    void ExpressionCpp::compile() {
+        _pInternalExpresion->compile();
     }
 
     void ExpressionCpp::evaluate() {
