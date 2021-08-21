@@ -9,6 +9,38 @@
 #include <memory>
 
 namespace xpression {
+
+    const char* getTypeName(DataType dt) {
+        switch (dt)
+        {
+        case DataType::AsciiString :
+            return "AsciiString";
+        case DataType::Boolean :
+            return "Boolean";
+        case DataType::Char :
+            return "Char";
+        case DataType::Double :
+            return "Double";
+        case DataType::Float :
+            return "Float";
+        case DataType::Integer :
+            return "Integer";
+        case DataType::Long :
+            return "Long";
+        case DataType::String :
+            return "String";
+        case DataType::UnicodeString :
+            return "UnicodeString";
+        case DataType::Void :
+            return "Void";
+        case DataType::Wchar :
+            return "Wchar";
+        default:
+            break;
+        }
+        return "Unknown";
+    }
+
     class InternalExpressionCpp {
         friend class ExpressionCpp;
         ExpressionContext* _compilationContext;
@@ -62,8 +94,9 @@ namespace xpression {
             if(!_evaluated) {
                 throw std::runtime_error("Expresion has not been evaluated");
             }
-            if(typeFromCpp<T>() != _resultType) {
-                throw std::runtime_error(std::string("expression result is not ") + typeid(T).name());
+            auto expectedType = typeFromCpp<T>();
+            if(expectedType != _resultType) {
+                throw std::runtime_error(std::string("expression result is ") + getTypeName(_resultType) + " not " + getTypeName(expectedType));
             }
             return *(T*)_compiledResult->getReturnData();
         }

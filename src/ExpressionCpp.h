@@ -23,4 +23,6 @@ namespace xpression {
 
         DataType getResultType() const;
     };
+
+    EXPRESSIONCPP_API const char* getTypeName(DataType dt);
 }

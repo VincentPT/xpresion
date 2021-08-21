@@ -11,6 +11,9 @@ namespace xpression {
         if(dynamicType == basicTypes.TYPE_FLOAT) {
             return DataType::Float;
         }
+        if(dynamicType == basicTypes.TYPE_DOUBLE) {
+            return DataType::Double;
+        }
         if(dynamicType == basicTypes.TYPE_INT) {
             return DataType::Integer;
         }
