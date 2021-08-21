@@ -12,9 +12,10 @@ namespace xpression {
         friend class ExpressionCpp;
         ExpressionContext* _compilationContext;
         ExpUnitExecutorRef _compiledResult;
+        bool _compiled;
         wstring _expresionStr;
     public:
-        InternalExpressionCpp() {}
+        InternalExpressionCpp(): _compiled(false) {}
         ~InternalExpressionCpp() {}
     };
 
@@ -27,7 +28,7 @@ namespace xpression {
         delete _pInternalExpresion;
     }
 
-    void ExpressionCpp::compiled() {
+    void ExpressionCpp::compile() {
         ExpressionContext* curentContext = ExpressionContext::getCurrentContext();
         if( curentContext == nullptr) {
             throw std::runtime_error("No instance of ExpressionContext for current thread found");
@@ -46,9 +47,11 @@ namespace xpression {
 
         _pInternalExpresion->_compilationContext = curentContext;
         _pInternalExpresion->_compiledResult = executor;
+        _pInternalExpresion->_compiled = true;
     }
 
     void ExpressionCpp::evaluate() {
+        if(!_pInternalExpresion->_compiled) compile();
         auto& executor = _pInternalExpresion->_compiledResult;
         executor->runCode();
     }

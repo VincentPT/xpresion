@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2)
-project(ExpressionCpp C CXX)
+project(xpression C CXX)
 
 SET (PROJECT_SOURCE_FILES
 	ExpressionCpp.cpp
@@ -18,4 +18,5 @@ SET (PROJECT_SOURCE_FILES
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
 add_definitions(-DEXPORT_EXPRESSIONCPP)
-target_link_libraries(${PROJECT_NAME} ffscriptLibrary)
+target_link_libraries(${PROJECT_NAME} PRIVATE ffscriptLibrary)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
