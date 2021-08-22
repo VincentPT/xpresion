@@ -92,9 +92,15 @@ namespace xpression {
             }
             
             Context* context = Context::getCurrent();
-            context->scopeAllocate(0, 0);
+            // additional variable' space for the expression
+            int variableSpace = 0; // => no variable
+            // space for expression itself require to run the code
+            int requireSpaceToRunCode = _compiledResult->getLocalSize();
+            // allocated buffer enough to run expression
+            context->scopeAllocate(variableSpace, requireSpaceToRunCode);
             _compiledResult->runCode();
-            context->scopeUnallocate(0, 0);
+            // unallocated the buffer after run expression
+            context->scopeUnallocate(variableSpace, requireSpaceToRunCode);
 
             _evaluated = true;
 
