@@ -71,6 +71,7 @@ namespace xpression {
         if(_pCustomScript) return;
         
         _pCustomScript = _pCompilerSuite->detachProgram(_pRawProgram);
+        _pRawProgram = nullptr;
         _pCustomScript->runGlobalCode();
 
 #ifdef MEMORY_SAVING
