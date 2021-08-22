@@ -37,6 +37,8 @@ namespace xpression {
             _rawVariable.dataSize = sizeof(T);
         }
 
+        virtual ~XVariable(){}
+
         Variable* get() {
             return &_rawVariable;
         }

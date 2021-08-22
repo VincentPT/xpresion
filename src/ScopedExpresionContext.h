@@ -18,5 +18,7 @@ namespace xpression {
         void addVariable(Variable* pVariable);
         VariableUpdater* getVariableUpdater();
         void setVariableUpdater(VariableUpdater* pVariableUpdater);
+
+        static ScopedExpresionContext* current();
     };
 }

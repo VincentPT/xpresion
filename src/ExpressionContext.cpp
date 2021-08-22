@@ -17,10 +17,13 @@ namespace xpression {
 	__thread ExpressionContext* _threadExpressionContext = nullptr;
 #endif
 
-    ExpressionContext::ExpressionContext() : _pRawProgram(nullptr), _pCustomScript(nullptr), _pVariableManager(nullptr) {
+    ExpressionContext::ExpressionContext() :
+        _pRawProgram(nullptr), _pCustomScript(nullptr),
+        _pVariableManager(nullptr) {
         _pCompilerSuite = new SimpleCompilerSuite();
         _pCompilerSuite->setPreprocessor(std::make_shared<DefaultPreprocessor>());
-
+        _userData.data = nullptr;
+        _userData.dt = UserDataType::NotUsed;
         _pVariableManager = new VariableManager(_pCompilerSuite->getGlobalScope()->getContext());
     }
 
@@ -148,5 +151,13 @@ namespace xpression {
 
     void ExpressionContext::setVariableUpdater(VariableUpdater* pVariableUpdater) {
         _pVariableManager->setVariableUdater(pVariableUpdater);
+    }
+
+    void ExpressionContext::setUserData(const UserData& userData) {
+        _userData = userData;
+    }
+
+    UserData& ExpressionContext::getUserData() {
+        return _userData;
     }
 }

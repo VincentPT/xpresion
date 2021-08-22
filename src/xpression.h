@@ -14,3 +14,24 @@
 #include "ExpressionCpp.h"
 #include "VariableUpdater.h"
 #include "ScopedExpresionContext.h"
+#include <exception>
+
+namespace xpression {
+    template <class T>
+    class AutoVariable : public XVariable<T> {
+        void autoRegistVariable() {
+            auto context = ScopedExpresionContext::current();
+            if(context == nullptr) {
+                throw std::runtime_error("There is no expression context in the variable'scope");
+            }
+            context->addVariable(get());
+        }
+    public:
+        AutoVariable(const std::string& name, T data) : XVariable(name, data) {
+            autoRegistVariable();
+        }
+        AutoVariable(const std::string& name) : XVariable(name) {
+            autoRegistVariable();
+        }
+    };
+}
