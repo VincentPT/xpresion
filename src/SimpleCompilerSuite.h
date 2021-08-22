@@ -30,7 +30,7 @@ namespace xpression {
         ~SimpleCompilerSuite();
 
         CompiledExpressionRef compileExpression(const std::wstring& expstr);
-        CompiledExpressionRef compileExpressionInProgramContext(const std::wstring& expstr);
+        //CompiledExpressionRef compileExpressionInProgramContext(const std::wstring& expstr);
         Program* compileProgram(const wchar_t* codeStart, const wchar_t* codeEnd);
         CLamdaProg* detachProgram(Program* program);
         const TypeManagerRef& getTypeManager() const;

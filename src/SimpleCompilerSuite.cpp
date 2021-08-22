@@ -72,37 +72,37 @@ namespace xpression {
 		return std::make_shared<CompiledExpression>(expressionPtr->getRoot(), ExpUnitExecutorRef(pExcutor));
 	}
 
-	CompiledExpressionRef SimpleCompilerSuite::compileExpressionInProgramContext(const std::wstring& expstr) {
-		_pCompiler->pushScope(_globalScopeRef.get());
+	// CompiledExpressionRef SimpleCompilerSuite::compileExpressionInProgramContext(const std::wstring& expstr) {
+	// 	_pCompiler->pushScope(_globalScopeRef.get());
 
-		// auto pop scope when the function exit
-		std::unique_ptr<ScriptCompiler, std::function<void(ScriptCompiler*)>> autoPopScope(
-			_pCompiler.get(),[](ScriptCompiler* compiler){
-				compiler->popScope();
-			});
+	// 	// auto pop scope when the function exit
+	// 	std::unique_ptr<ScriptCompiler, std::function<void(ScriptCompiler*)>> autoPopScope(
+	// 		_pCompiler.get(),[](ScriptCompiler* compiler){
+	// 			compiler->popScope();
+	// 		});
 		
-		std::wstring expressionScopeScript = L"{" + expstr + L";}";
+	// 	std::wstring expressionScopeScript = L"{" + expstr + L";}";
 
-		ContextScope* contextScope = new ContextScope(_globalScopeRef.get(), nullptr);
-		contextScope->parse(expressionScopeScript.c_str(), expressionScopeScript.c_str() + expressionScopeScript.size());
-		auto commandIter = contextScope->getFirstCommandUnitRefIter();
-		++commandIter;
+	// 	ContextScope* contextScope = new ContextScope(_globalScopeRef.get(), nullptr);
+	// 	contextScope->parse(expressionScopeScript.c_str(), expressionScopeScript.c_str() + expressionScopeScript.size());
+	// 	auto commandIter = contextScope->getFirstCommandUnitRefIter();
+	// 	++commandIter;
 
-		ExecutableUnitRef compiledExpresionUnit = std::dynamic_pointer_cast<ExecutableUnit>(*commandIter);
+	// 	ExecutableUnitRef compiledExpresionUnit = std::dynamic_pointer_cast<ExecutableUnit>(*commandIter);
 
-		auto program = _pCompiler->getProgram();
+	// 	auto program = _pCompiler->getProgram();
 
-		contextScope->correctAndOptimize(program);
-		contextScope->extractCode(program);
+	// 	contextScope->correctAndOptimize(program);
+	// 	contextScope->extractCode(program);
 
-		auto endCommand = program->getCommandContainer().end();
-		--endCommand;
-		--endCommand;
+	// 	auto endCommand = program->getCommandContainer().end();
+	// 	--endCommand;
+	// 	--endCommand;
 
-		auto pExcutorRef = std::dynamic_pointer_cast<ExpUnitExecutor>(*endCommand);
+	// 	auto pExcutorRef = std::dynamic_pointer_cast<ExpUnitExecutor>(*endCommand);
 		
-		return std::make_shared<CompiledExpression>(compiledExpresionUnit, pExcutorRef);
-	}
+	// 	return std::make_shared<CompiledExpression>(compiledExpresionUnit, pExcutorRef);
+	// }
 
 	Program* SimpleCompilerSuite::compileProgram(const wchar_t* codeStart, const wchar_t* codeEnd) {
 		_pCompiler->clearUserLib();
