@@ -7,7 +7,7 @@ using namespace xpression;
 
 TEST(ExpressionCpp, testCustomScript1)
 {
-    // test evaluating a normal expression
+    // test evaluating expression call and custom script
     ScopedExpresionContext scopedContext;
     scopedContext.setCustomScript(
         L"int sum(int a, int b) {\n"
@@ -18,5 +18,40 @@ TEST(ExpressionCpp, testCustomScript1)
     ExpressionCpp e(L"1 + sum(2, 3)");
     e.evaluate();
 
-    //EXPECT_EQ(6, e.getResultInt());
+    EXPECT_EQ(6, e.getResultInt());
+}
+
+TEST(ExpressionCpp, testCustomScript2)
+{
+    // test evaluating expression call and custom script
+    ScopedExpresionContext scopedContext;
+    scopedContext.setCustomScript(
+        L"int n = 4;\n"
+        L"int sum(int a, int b) {\n"
+        L"  return a + b + n;\n"
+        L"}"
+    );
+
+    ExpressionCpp e(L"1 + sum(2, 3)");
+    e.evaluate();
+
+    EXPECT_EQ(10, e.getResultInt());
+}
+
+TEST(ExpressionCpp, testCustomScript3)
+{
+    // test run two expression in the same context
+    ScopedExpresionContext scopedContext;
+    scopedContext.setCustomScript(
+        L"int sum(int a, int b) {\n"
+        L"  return a + b;\n"
+        L"}"
+    );
+
+    ExpressionCpp e1(L"1 + sum(2, 3)");
+    e1.evaluate();
+    ExpressionCpp e2(L"4 + sum(2, 3)");
+    e2.evaluate();
+
+    EXPECT_EQ(9, e2.getResultInt());
 }
