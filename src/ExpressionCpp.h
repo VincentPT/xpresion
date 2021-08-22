@@ -7,12 +7,11 @@ namespace xpression {
 
     class EXPRESSIONCPP_API ExpressionCpp {
         InternalExpressionCpp* _pInternalExpresion;
-    protected:
-        void compile();
     public:
         ExpressionCpp(const wchar_t* expstr);
         ~ExpressionCpp();
         
+        void compile();
         void evaluate();
         int getResultInt();
         bool getResultBool();
@@ -23,4 +22,6 @@ namespace xpression {
 
         DataType getResultType() const;
     };
+
+    EXPRESSIONCPP_API const char* getTypeName(DataType dt);
 }

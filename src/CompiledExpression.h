@@ -21,13 +21,13 @@ namespace xpression {
     typedef shared_ptr<ExpUnitExecutor> ExpUnitExecutorRef;
 
     class CompiledExpression {
-        ExpressionRef _internalExpression;
+        ExecutableUnitRef _internalExpressionRoot;
         ExpUnitExecutorRef _expresionExecutor;
     public:
-        CompiledExpression(const ExpressionRef& internalExpression, const ExpUnitExecutorRef& executor);
+        CompiledExpression(const ExecutableUnitRef& internalExpressionRoot, const ExpUnitExecutorRef& executor);
         ~CompiledExpression();
 
-        const ExpressionRef& getInternalExpresion() const;
+        const ExecutableUnitRef& getInternalExpresionRoot() const;
         const ExpUnitExecutorRef& getExecutor() const;
     };
 

@@ -9,6 +9,38 @@
 #include <memory>
 
 namespace xpression {
+
+    const char* getTypeName(DataType dt) {
+        switch (dt)
+        {
+        case DataType::AsciiString :
+            return "AsciiString";
+        case DataType::Boolean :
+            return "Boolean";
+        case DataType::Char :
+            return "Char";
+        case DataType::Double :
+            return "Double";
+        case DataType::Float :
+            return "Float";
+        case DataType::Integer :
+            return "Integer";
+        case DataType::Long :
+            return "Long";
+        case DataType::String :
+            return "String";
+        case DataType::UnicodeString :
+            return "UnicodeString";
+        case DataType::Void :
+            return "Void";
+        case DataType::Wchar :
+            return "Wchar";
+        default:
+            break;
+        }
+        return "Unknown";
+    }
+
     class InternalExpressionCpp {
         friend class ExpressionCpp;
         ExpressionContext* _compilationContext;
@@ -29,12 +61,21 @@ namespace xpression {
             }
 
             auto compilerSuite = curentContext->getCompilerSuite();
+            if(compilerSuite == nullptr) {
+                throw std::runtime_error("Compiler is no longer exist in current context due to memory saving process is enable");
+            }
+
             auto& typeManager = compilerSuite->getTypeManager();
             auto& basicTypes = typeManager->getBasicTypes();
 
+            auto program = compilerSuite->getCompiler()->getProgram();
+
+            // auto compilerResult = program ? compilerSuite->compileExpressionInProgramContext(_expresionStr) :
+            // compilerSuite->compileExpression(_expresionStr);
+
             auto compilerResult = compilerSuite->compileExpression(_expresionStr);
 
-            auto dynamicReturnType = compilerResult->getInternalExpresion()->getRoot()->getReturnType().iType();
+            auto dynamicReturnType = compilerResult->getInternalExpresionRoot()->getReturnType().iType();
             _resultType = dynamicToStatic(basicTypes, dynamicReturnType);
 
             auto& executor = compilerResult->getExecutor();
@@ -45,7 +86,22 @@ namespace xpression {
 
         void evaluate() {
             if(!_compiledResult) compile();
+            ExpressionContext* curentContext = ExpressionContext::getCurrentContext();
+            if(curentContext) {
+                curentContext->startEvaluating();
+            }
+            
+            Context* context = Context::getCurrent();
+            // additional variable' space for the expression
+            int variableSpace = 0; // => no variable
+            // space for expression itself require to run the code
+            int requireSpaceToRunCode = _compiledResult->getLocalSize();
+            // allocated buffer enough to run expression
+            context->scopeAllocate(variableSpace, requireSpaceToRunCode);
             _compiledResult->runCode();
+            // unallocated the buffer after run expression
+            context->scopeUnallocate(variableSpace, requireSpaceToRunCode);
+
             _evaluated = true;
 
             if(_resultType == DataType::String) {
@@ -62,8 +118,9 @@ namespace xpression {
             if(!_evaluated) {
                 throw std::runtime_error("Expresion has not been evaluated");
             }
-            if(typeFromCpp<T>() != _resultType) {
-                throw std::runtime_error(std::string("expression result is not ") + typeid(T).name());
+            auto expectedType = typeFromCpp<T>();
+            if(expectedType != _resultType) {
+                throw std::runtime_error(std::string("expression result is ") + getTypeName(_resultType) + " not " + getTypeName(expectedType));
             }
             return *(T*)_compiledResult->getReturnData();
         }
@@ -108,6 +165,10 @@ namespace xpression {
 
     ExpressionCpp::~ExpressionCpp() {
         delete _pInternalExpresion;
+    }
+
+    void ExpressionCpp::compile() {
+        _pInternalExpresion->compile();
     }
 
     void ExpressionCpp::evaluate() {

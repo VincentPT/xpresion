@@ -11,6 +11,7 @@ conan_basic_setup()
 
 SET (PROJECT_SOURCE_FILES
 	PrimaryTests.cpp
+    CustomScriptTests.cpp
 )
 
 add_executable(${PROJECT_NAME} main.cpp ${PROJECT_SOURCE_FILES})
