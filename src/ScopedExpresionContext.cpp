@@ -18,4 +18,16 @@ namespace xpression {
     void ScopedExpresionContext::setCustomScript(const wchar_t* customScript) {
         _pExpressionContext->setCustomScript(customScript);
     }
+
+    void ScopedExpresionContext::addVariable(Variable* pVariable) {
+        _pExpressionContext->addVariable(pVariable);
+    }
+    
+    VariableUpdater* ScopedExpresionContext::getVariableUpdater() {
+        return _pExpressionContext->getVariableUpdater();
+    }
+    
+    void ScopedExpresionContext::setVariableUpdater(VariableUpdater* pVariableUpdater) {
+        _pExpressionContext->setVariableUpdater(pVariableUpdater);
+    }
 }

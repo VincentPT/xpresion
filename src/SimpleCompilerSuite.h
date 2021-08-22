@@ -38,5 +38,6 @@ namespace xpression {
 		const PreprocessorRef getPreprocessor() const;
         void getLastCompliedPosition(int& line, int& column);
         ScriptCompilerRef& getCompiler();
+        GlobalScope* getGlobalScope();
     };
 }

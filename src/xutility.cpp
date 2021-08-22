@@ -1,4 +1,9 @@
-#include "Utility.h"
+
+#include <BasicType.h>
+#include "xutility.h"
+
+using namespace ffscript;
+
 
 namespace xpression {
     DataType dynamicToStatic(const BasicTypes& basicTypes, int dynamicType) {
@@ -74,43 +79,37 @@ namespace xpression {
         }
         return DATA_TYPE_UNKNOWN;
     }
-    template <>
-    DataType typeFromCpp<bool>() {
-        return DataType::Boolean;
-    }
-    template <>
-    DataType typeFromCpp<int>() {
-        return DataType::Integer;
-    }
 
-    template <>
-    DataType typeFromCpp<long long>() {
-        return DataType::Long;
-    }
-
-    template <>
-    DataType typeFromCpp<double>() {
-        return DataType::Double;
-    }
-
-    template <>
-    DataType typeFromCpp<float>() {
-        return DataType::Float;
-    }
-    template <>
-    DataType typeFromCpp<char>() {
-        return DataType::Char;
-    }
-    template <wchar_t>
-    DataType typeFromCpp() {
-        return DataType::Wchar;
-    }
-    template <>
-    DataType typeFromCpp<std::string>() {
-        return DataType::AsciiString;
-    }
-    template <>
-    DataType typeFromCpp<std::wstring>() {
-        return DataType::UnicodeString;
+    int typeSize(DataType dt) {
+        switch (dt)
+        {
+        case DataType::Boolean:
+            return sizeof(bool);
+        case DataType::Char:
+            return sizeof(char);
+        case DataType::Double:
+            return sizeof(double);
+        case DataType::Float:
+            return sizeof(float);
+        case DataType::Integer:
+            return sizeof(int);
+        case DataType::Long:
+            return sizeof(long long);
+        case DataType::Null:
+            return sizeof(void*);
+        case DataType::AsciiString:
+            return sizeof(char*);
+        case DataType::Void:
+            return 0;
+        case DataType::Wchar:
+            return sizeof(wchar_t);
+        case DataType::UnicodeString:
+            return sizeof(wchar_t*);
+        case DataType::String:
+            return sizeof(wchar_t*);
+        default:
+            return -1;
+        }
+        return -1;
     }
 }

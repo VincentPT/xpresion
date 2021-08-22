@@ -170,4 +170,8 @@ namespace xpression {
 	ScriptCompilerRef& SimpleCompilerSuite::getCompiler() {
 		return _pCompiler;
 	}
+
+	GlobalScope* SimpleCompilerSuite::getGlobalScope() {
+		return _globalScopeRef.get();
+	}
 }

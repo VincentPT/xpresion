@@ -12,8 +12,14 @@ SET (PROJECT_SOURCE_FILES
 	ExpressionContext.cpp
 	ScopedExpresionContext.h
 	ScopedExpresionContext.cpp
-	Utility.cpp
-	Utility.h
+	xutility.cpp
+	xutility.h
+	StaticVariable.h
+	VariableManager.h
+	VariableManager.cpp
+	VariableUpdater.h
+	xpression.h
+	xpression.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})

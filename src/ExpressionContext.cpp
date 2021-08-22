@@ -1,9 +1,13 @@
 #include "ExpressionContext.h"
 #include "SimpleCompilerSuite.h"
+#include "xutility.h"
+
 #include <string.h>
 #include <DefaultPreprocessor.h>
 #include <CLamdaProg.h>
 #include <Program.h>
+#include <string>
+#include "VariableManager.h"
 
 namespace xpression {
 #if _WIN32 || _WIN64
@@ -13,14 +17,19 @@ namespace xpression {
 	__thread ExpressionContext* _threadExpressionContext = nullptr;
 #endif
 
-    ExpressionContext::ExpressionContext() : _pRawProgram(nullptr), _pCustomScript(nullptr) {
+    ExpressionContext::ExpressionContext() : _pRawProgram(nullptr), _pCustomScript(nullptr), _pVariableManager(nullptr) {
         _pCompilerSuite = new SimpleCompilerSuite();
         _pCompilerSuite->setPreprocessor(std::make_shared<DefaultPreprocessor>());
+
+        _pVariableManager = new VariableManager(_pCompilerSuite->getGlobalScope()->getContext());
     }
 
     ExpressionContext::~ExpressionContext() {
         if(_pCompilerSuite) {
             delete _pCompilerSuite;
+        }
+        if(_pVariableManager) {
+            delete _pVariableManager;
         }
         stopEvaluating();
     }
@@ -64,11 +73,17 @@ namespace xpression {
     }
 
     void ExpressionContext::startEvaluating() {
-        // no need to prepare for evaluating
+        if(_pVariableManager) {
+            _pCompilerSuite->getGlobalScope()->updateVariableOffset();
+            _pVariableManager->requestUpdateVariables();
+            _pVariableManager->checkVariablesFullFilled();
+        }
+
+        // no need to run global code
         if(_pRawProgram == nullptr) return;
 
-        // evaluating is already start
-        if(_pCustomScript) return;
+        // evaluating run global code
+        if(_pCustomScript) return;        
         
         _pCustomScript = _pCompilerSuite->detachProgram(_pRawProgram);
         _pRawProgram = nullptr;
@@ -89,5 +104,49 @@ namespace xpression {
             _pCustomScript->cleanupGlobalMemory();
             delete _pCustomScript;
         }
+    }
+
+    void ExpressionContext::addVariable(xpression::Variable* pVariable) {
+        if(pVariable->name == nullptr || pVariable->name[0] == 0) {
+            throw std::runtime_error("Variable name cannot be empty");
+        }
+        if(pVariable->type == DataType::Unknown) {
+            throw std::runtime_error("type of variable '" + std::string(pVariable->name) + "' is unknown");
+        }
+        
+        auto globalScope = _pCompilerSuite->getGlobalScope();
+
+        // convert static type to lambda script type
+        auto& typeManager = _pCompilerSuite->getTypeManager();
+        auto& basicType = typeManager->getBasicTypes();
+        int iType = staticToDynamic(basicType, pVariable->type);
+        if(DATA_TYPE_UNKNOWN == iType) {
+            throw std::runtime_error("type of variable '" + std::string(pVariable->name) + "' is not supported");
+        }
+
+        // regist variable with specified name
+        auto pScriptVariable = globalScope->registVariable(pVariable->name);
+        if(pScriptVariable == nullptr) {
+            throw std::runtime_error("Variable '" + std::string(pVariable->name) + "' is already exist");
+        }
+
+        // set variable type
+        ScriptType type(iType, typeManager->getType(iType));
+        pScriptVariable->setDataType(type);
+
+        _pVariableManager->addVariable(pVariable);
+        _pVariableManager->addRequestUpdateVariable(pScriptVariable, pVariable->dataPtr == nullptr);
+    }
+
+    VariableUpdater* ExpressionContext::getVariableUpdater() {
+        if(_pVariableManager == nullptr) {
+            return nullptr;
+        }
+
+        return _pVariableManager->getVariableUpdater();
+    }
+
+    void ExpressionContext::setVariableUpdater(VariableUpdater* pVariableUpdater) {
+        _pVariableManager->setVariableUdater(pVariableUpdater);
     }
 }

@@ -12,4 +12,5 @@
 
 #include "DataType.h"
 #include "ExpressionCpp.h"
+#include "VariableUpdater.h"
 #include "ScopedExpresionContext.h"
