@@ -9,7 +9,7 @@
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}\\build\\test\\Debug\\xpressiontester.exe",
-            "args": ["--gtest_filter=ExpressionCpp.testCustomScript1"],
+            "args": ["--gtest_filter=ExpressionCpp.testExpresionWithNormalVarialbe"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],

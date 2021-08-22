@@ -2,5 +2,31 @@
     "cmake.configureOnOpen": false,
     "cmake.configureSettings": {
         "FFSCRIPT_EXCLUDE_THREAD": true
+    },
+    "files.associations": {
+        "string": "cpp",
+        "utility": "cpp",
+        "xmemory0": "cpp",
+        "algorithm": "cpp",
+        "array": "cpp",
+        "cctype": "cpp",
+        "cmath": "cpp",
+        "cstdint": "cpp",
+        "cstdio": "cpp",
+        "cstdlib": "cpp",
+        "cwchar": "cpp",
+        "forward_list": "cpp",
+        "initializer_list": "cpp",
+        "iosfwd": "cpp",
+        "iterator": "cpp",
+        "limits": "cpp",
+        "new": "cpp",
+        "numeric": "cpp",
+        "stdexcept": "cpp",
+        "xmemory": "cpp",
+        "xstddef": "cpp",
+        "xstring": "cpp",
+        "xtr1common": "cpp",
+        "xutility.h": "cpp"
     }
 }
