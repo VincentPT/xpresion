@@ -27,7 +27,7 @@ namespace xpression {
     SimpleCompilerSuite::~SimpleCompilerSuite() {
     }
 
-    CompiledExpressionRef SimpleCompilerSuite::compileExpression(const std::wstring& expstr) {
+    ExpressionRef SimpleCompilerSuite::compileExpression(const std::wstring& expstr) {
 		ExpressionParser parser(_pCompiler.get());
 		_pCompiler->pushScope(_globalScopeRef.get());
 
@@ -54,22 +54,31 @@ namespace xpression {
             throw std::runtime_error (_pCompiler->getLastError());
         }
 
-		Expression* expressionPtr = expList.front().get();
+		auto& expRef = expList.front();
+		Expression* expressionPtr = expRef.get();
 		eResult = parser.link(expressionPtr);
 		if (eResult != EE_SUCCESS) {
             throw std::runtime_error (_pCompiler->getLastError());
         }
 
+		return expRef;
+	}
+
+	ExpUnitExecutorRef SimpleCompilerSuite::generateCode(const ExpressionRef& exp) {
 		//all variable in the scope will be place at right offset by bellow command
 		//if this function is not execute before extract the code then all variable
 		//will be placed at offset 0
-		_globalScopeRef->updateVariableOffset();
+		//_globalScopeRef->updateVariableOffset();
 
 		ExpUnitExecutor* pExcutor = new ExpUnitExecutor(_globalScopeRef.get());
-		pExcutor->extractCode(_pCompiler.get(), expressionPtr);
+		if(!pExcutor->extractCode(_pCompiler.get(), exp.get())) {
+			 throw std::runtime_error (_pCompiler->getLastError());
+		}
+		// no need to allocate code size for each expression because
+		// we run every expression in the same base address
+		_globalScopeRef->resetCodeSize();
 
-
-		return std::make_shared<CompiledExpression>(expressionPtr->getRoot(), ExpUnitExecutorRef(pExcutor));
+		return ExpUnitExecutorRef(pExcutor);
 	}
 
 	// CompiledExpressionRef SimpleCompilerSuite::compileExpressionInProgramContext(const std::wstring& expstr) {

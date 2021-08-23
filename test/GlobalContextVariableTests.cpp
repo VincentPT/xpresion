@@ -89,16 +89,16 @@ TEST(ExpressionCpp, testAddVariableAndRunTwoTimes)
     e1.evaluate();
     EXPECT_EQ(3, e1.getResultInt());
 
-    XVariable<double> y("y", 3.0);
+    XVariable<double> y("y", 5.0);
     scopedContext.addVariable(y.get());
 
     ExpressionCpp e2(L"1 + y");
     e2.evaluate();
-    EXPECT_EQ(4.0, e2.getResultDouble());
+    EXPECT_EQ(6.0, e2.getResultDouble());
 
     e1.evaluate();
     EXPECT_EQ(3, e1.getResultInt());
 
     e2.evaluate();
-    EXPECT_EQ(4.0, e2.getResultDouble());
+    EXPECT_EQ(6.0, e2.getResultDouble());
 }

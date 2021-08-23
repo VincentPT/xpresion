@@ -29,7 +29,8 @@ namespace xpression {
         SimpleCompilerSuite();
         ~SimpleCompilerSuite();
 
-        CompiledExpressionRef compileExpression(const std::wstring& expstr);
+        ExpressionRef compileExpression(const std::wstring& expstr);
+        ExpUnitExecutorRef generateCode(const ExpressionRef& exp);
         //CompiledExpressionRef compileExpressionInProgramContext(const std::wstring& expstr);
         Program* compileProgram(const wchar_t* codeStart, const wchar_t* codeEnd);
         CLamdaProg* detachProgram(Program* program);

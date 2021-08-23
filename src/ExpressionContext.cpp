@@ -7,6 +7,7 @@
 #include <CLamdaProg.h>
 #include <Program.h>
 #include <string>
+#include <list>
 #include "VariableManager.h"
 
 namespace xpression {
@@ -17,14 +18,33 @@ namespace xpression {
 	__thread ExpressionContext* _threadExpressionContext = nullptr;
 #endif
 
+    class ExpressionEventManager {
+        std::list<ExpressionEventHandler*> _handlers;
+    public:
+        void addHandler(ExpressionEventHandler* handler) {
+            _handlers.push_back(handler);
+        }
+
+        void removeHandler(ExpressionEventHandler* handler) {
+            _handlers.remove(handler);
+        }
+
+        void notifyUpdate() {
+            for(auto hander : _handlers) {
+                hander->onRequestUpdate();
+            }
+        }
+    };
+
     ExpressionContext::ExpressionContext() :
         _pRawProgram(nullptr), _pCustomScript(nullptr),
-        _pVariableManager(nullptr) {
+        _pVariableManager(nullptr), _needUpdateVariable(false) {
         _pCompilerSuite = new SimpleCompilerSuite();
         _pCompilerSuite->setPreprocessor(std::make_shared<DefaultPreprocessor>());
         _userData.data = nullptr;
         _userData.dt = UserDataType::NotUsed;
         _pVariableManager = new VariableManager(_pCompilerSuite->getGlobalScope()->getContext());
+        _eventManager = new ExpressionEventManager();
     }
 
     ExpressionContext::~ExpressionContext() {
@@ -33,6 +53,9 @@ namespace xpression {
         }
         if(_pVariableManager) {
             delete _pVariableManager;
+        }
+        if(_eventManager) {
+            delete _eventManager;
         }
         stopEvaluating();
     }
@@ -76,10 +99,11 @@ namespace xpression {
     }
 
     void ExpressionContext::startEvaluating() {
-        if(_pVariableManager) {
-            _pCompilerSuite->getGlobalScope()->updateVariableOffset();
+        if(_pVariableManager && _needUpdateVariable) {
             _pVariableManager->requestUpdateVariables();
             _pVariableManager->checkVariablesFullFilled();
+            // all registered variables are updated now
+            _needUpdateVariable = false;
         }
 
         // no need to run global code
@@ -139,6 +163,14 @@ namespace xpression {
 
         _pVariableManager->addVariable(pVariable);
         _pVariableManager->addRequestUpdateVariable(pScriptVariable, pVariable->dataPtr == nullptr);
+        // the variable now is register success, then it need evaluate before expression evaluate
+        _needUpdateVariable = true;
+
+        // request existing expression in current scope update when new variable is added to the scope
+        _eventManager->notifyUpdate();
+
+        // update the last added variable' offset
+        globalScope->updateLastVariableOffset();
     }
 
     VariableUpdater* ExpressionContext::getVariableUpdater() {
@@ -159,5 +191,13 @@ namespace xpression {
 
     UserData& ExpressionContext::getUserData() {
         return _userData;
+    }
+
+    void ExpressionContext::addExpressionEventHandler(ExpressionEventHandler* handler) {
+        _eventManager->addHandler(handler);
+    }
+
+    void ExpressionContext::removeExpressionEventHandler(ExpressionEventHandler* handler) {
+        _eventManager->removeHandler(handler);
     }
 }

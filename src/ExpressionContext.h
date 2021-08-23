@@ -10,6 +10,7 @@ namespace ffscript {
 namespace xpression {
     class SimpleCompilerSuite;
     class VariableManager;
+    class ExpressionEventManager;
     
     enum class UserDataType {
         NotUsed,
@@ -22,12 +23,19 @@ namespace xpression {
         UserDataType dt;
     };
 
+    class ExpressionEventHandler {
+    public:
+        virtual void onRequestUpdate() = 0;
+    };
+
     class ExpressionContext {
         SimpleCompilerSuite* _pCompilerSuite;
         ffscript::CLamdaProg* _pCustomScript;
         ffscript::Program* _pRawProgram;
         VariableManager* _pVariableManager;
         UserData   _userData;
+        ExpressionEventManager* _eventManager;
+        bool _needUpdateVariable;
     public:
         ExpressionContext();
         ~ExpressionContext();
@@ -41,6 +49,8 @@ namespace xpression {
         void setVariableUpdater(VariableUpdater* pVariableUpdater);
         void setUserData(const UserData& userData);
         UserData& getUserData();
+        void addExpressionEventHandler(ExpressionEventHandler* handler);
+        void removeExpressionEventHandler(ExpressionEventHandler* handler);
 
         static ExpressionContext* getCurrentContext();
         static void setCurrentContext(ExpressionContext* pContext);

@@ -41,26 +41,30 @@ namespace xpression {
         return "Unknown";
     }
 
-    class InternalExpressionCpp {
+    class InternalExpressionCpp : public ExpressionEventHandler {
         friend class ExpressionCpp;
         ExpressionContext* _compilationContext;
-        ExpUnitExecutorRef _compiledResult;
+        ExpressionRef _compiledResult;
+        ExpUnitExecutorRef _codeExecutor;
         wstring _expresionStr;
         bool _evaluated;
         DataType _resultType;
         typedef std::unique_ptr<void, std::function<void(void*)>> ResultDeletor;
         ResultDeletor _manualDeletedResult;
     public:
-        InternalExpressionCpp(): _evaluated(false), _resultType(DataType::Unknown)  {}
-        ~InternalExpressionCpp() {}
-
-        void compile() {
-            ExpressionContext* curentContext = ExpressionContext::getCurrentContext();
-            if( curentContext == nullptr) {
+        InternalExpressionCpp(): _evaluated(false), _resultType(DataType::Unknown)  {
+            _compilationContext = ExpressionContext::getCurrentContext();
+            if( _compilationContext == nullptr) {
                 throw std::runtime_error("No instance of ExpressionContext for current thread found");
             }
+            _compilationContext->addExpressionEventHandler(this);
+        }
+        ~InternalExpressionCpp() {
+            _compilationContext->removeExpressionEventHandler(this);
+        }
 
-            auto compilerSuite = curentContext->getCompilerSuite();
+        void compile() {
+            auto compilerSuite = _compilationContext->getCompilerSuite();
             if(compilerSuite == nullptr) {
                 throw std::runtime_error("Compiler is no longer exist in current context due to memory saving process is enable");
             }
@@ -73,32 +77,34 @@ namespace xpression {
             // auto compilerResult = program ? compilerSuite->compileExpressionInProgramContext(_expresionStr) :
             // compilerSuite->compileExpression(_expresionStr);
 
-            auto compilerResult = compilerSuite->compileExpression(_expresionStr);
+             _codeExecutor.reset();
+            _compiledResult = compilerSuite->compileExpression(_expresionStr);
 
-            auto dynamicReturnType = compilerResult->getInternalExpresionRoot()->getReturnType().iType();
+            auto dynamicReturnType = _compiledResult->getRoot()->getReturnType().iType();
             _resultType = dynamicToStatic(basicTypes, dynamicReturnType);
+        }
 
-            auto& executor = compilerResult->getExecutor();
-
-            _compilationContext = curentContext;
-            _compiledResult = executor;
+        void generateCode() {
+            auto compilerSuite = _compilationContext->getCompilerSuite();
+            if(compilerSuite == nullptr) {
+                throw std::runtime_error("Compiler is no longer exist in current context due to memory saving process is enable");
+            }
+            _codeExecutor = compilerSuite->generateCode(_compiledResult);
         }
 
         void evaluate() {
             if(!_compiledResult) compile();
-            ExpressionContext* curentContext = ExpressionContext::getCurrentContext();
-            if(curentContext) {
-                curentContext->startEvaluating();
-            }
+            if(!_codeExecutor) generateCode();
+            _compilationContext->startEvaluating();
             
             Context* context = Context::getCurrent();
             // additional variable' space for the expression
             int variableSpace = 0; // => no variable
             // space for expression itself require to run the code
-            int requireSpaceToRunCode = _compiledResult->getLocalSize();
+            int requireSpaceToRunCode = _codeExecutor->getLocalSize();
             // allocated buffer enough to run expression
             context->scopeAllocate(variableSpace, requireSpaceToRunCode);
-            _compiledResult->runCode();
+            _codeExecutor->runCode();
             // unallocated the buffer after run expression
             context->scopeUnallocate(variableSpace, requireSpaceToRunCode);
 
@@ -106,7 +112,7 @@ namespace xpression {
 
             if(_resultType == DataType::String) {
                 _manualDeletedResult = ResultDeletor(
-                    _compiledResult->getReturnData(),
+                    _codeExecutor->getReturnData(),
                     [](void* ptr) {
                         freeRawString(*(RawString*)ptr);
                     });
@@ -122,7 +128,7 @@ namespace xpression {
             if(expectedType != _resultType) {
                 throw std::runtime_error(std::string("expression result is ") + getTypeName(_resultType) + " not " + getTypeName(expectedType));
             }
-            return *(T*)_compiledResult->getReturnData();
+            return *(T*)_codeExecutor->getReturnData();
         }
 
         const wchar_t* getResultString() {
@@ -130,13 +136,13 @@ namespace xpression {
                 throw std::runtime_error("Expresion has not been evaluated");
             }
             if(DataType::String == _resultType) {
-                return ((RawString*)_compiledResult->getReturnData())->elms;
+                return ((RawString*)_codeExecutor->getReturnData())->elms;
             }
             if(DataType::UnicodeString == _resultType) {
-                return (*((std::wstring**)_compiledResult->getReturnData()))->c_str();
+                return (*((std::wstring**)_codeExecutor->getReturnData()))->c_str();
             }
             if(DataType::AsciiString == _resultType) {
-                auto pRes = *((std::string**)_compiledResult->getReturnData());
+                auto pRes = *((std::string**)_codeExecutor->getReturnData());
                 std::wstring* pTempString = new std::wstring(pRes->begin(), pRes->end());
                 _manualDeletedResult = ResultDeletor(
                     pTempString,
@@ -155,6 +161,10 @@ namespace xpression {
                 throw std::runtime_error("Expresion has not been evaluated");
             }
             return _resultType;
+        }
+
+        virtual void onRequestUpdate() {
+            _codeExecutor.reset();
         }
     };
 
