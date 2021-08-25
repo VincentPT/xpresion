@@ -33,6 +33,7 @@ namespace xpression {
         ExpUnitExecutorRef generateCode(const ExpressionRef& exp);
         //CompiledExpressionRef compileExpressionInProgramContext(const std::wstring& expstr);
         Program* compileProgram(const wchar_t* codeStart, const wchar_t* codeEnd);
+        void regenerateProgramCode(Program* Program);
         CLamdaProg* detachProgram(Program* program);
         const TypeManagerRef& getTypeManager() const;
 		void setPreprocessor(const PreprocessorRef& preprocessor);

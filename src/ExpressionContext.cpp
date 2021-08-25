@@ -37,8 +37,9 @@ namespace xpression {
     };
 
     ExpressionContext::ExpressionContext() :
-        _pRawProgram(nullptr), _pCustomScript(nullptr),
-        _pVariableManager(nullptr), _needUpdateVariable(false) {
+        _pRawProgram(nullptr), _allocatedDataSize(0), _allocatedScopeSize(0),
+        _pVariableManager(nullptr), _needUpdateVariable(false),
+        _needRunGlobalCode(false), _needRegenerateCode(false) {
         _pCompilerSuite = new SimpleCompilerSuite();
         _pCompilerSuite->setPreprocessor(std::make_shared<DefaultPreprocessor>());
         _userData.data = nullptr;
@@ -48,6 +49,9 @@ namespace xpression {
     }
 
     ExpressionContext::~ExpressionContext() {
+        if(_pRawProgram) {
+            delete _pRawProgram;
+        }
         if(_pCompilerSuite) {
             delete _pCompilerSuite;
         }
@@ -57,7 +61,6 @@ namespace xpression {
         if(_eventManager) {
             delete _eventManager;
         }
-        stopEvaluating();
     }
 
     SimpleCompilerSuite* ExpressionContext::getCompilerSuite() const {
@@ -73,12 +76,11 @@ namespace xpression {
     }
 
     void ExpressionContext::setCustomScript(const wchar_t* customScript) {
-        if(_pRawProgram || _pCustomScript) {
+        if(_pRawProgram) {
              throw std::runtime_error("custom script is already available");
         }
         auto len = wcslen(customScript);
         _pRawProgram = _pCompilerSuite->compileProgram(customScript, customScript + len);
-        _pCustomScript = nullptr;
 
         // check if the compiling process is failed...
         if (_pRawProgram == nullptr) {
@@ -96,6 +98,7 @@ namespace xpression {
             
             throw std::runtime_error(errorMsg);
         }
+        _needRunGlobalCode = true;
     }
 
     void ExpressionContext::startEvaluating() {
@@ -106,31 +109,34 @@ namespace xpression {
             _needUpdateVariable = false;
         }
 
-        // no need to run global code
-        if(_pRawProgram == nullptr) return;
+        auto globalScope = _pCompilerSuite->getGlobalScope();
+        if(_needRegenerateCode && _pRawProgram) {
+            _pRawProgram->resetExcutors();
+            _pRawProgram->resetFunctionMap();
+            if(!globalScope->extractCode(_pRawProgram)) {
+                throw std::runtime_error("Regenerate code is failed");
+            }
+            _needRunGlobalCode = true;
+        }
 
-        // evaluating run global code
-        if(_pCustomScript) return;        
+        // check if need to run global code
+        if(!_needRunGlobalCode) return;
         
-        _pCustomScript = _pCompilerSuite->detachProgram(_pRawProgram);
-        _pRawProgram = nullptr;
-        _pCustomScript->runGlobalCode();
+        auto context = globalScope->getContext();
 
-#ifdef MEMORY_SAVING
-        // compiler suite is no longer necessary
-        delete _pCompilerSuite;
-        _pCompilerSuite = nullptr;
-#endif
-    }
+        if(_allocatedDataSize || _allocatedScopeSize) {
+            context->scopeUnallocate(_allocatedDataSize, _allocatedScopeSize);
+        }
 
-    void ExpressionContext::stopEvaluating() {
-        if(_pRawProgram) {
-            delete _pRawProgram;
-        }
-        if(_pCustomScript) {
-            _pCustomScript->cleanupGlobalMemory();
-            delete _pCustomScript;
-        }
+        _allocatedDataSize = globalScope->getDataSize();
+        _allocatedScopeSize = globalScope->getScopeSize(); // space need to run the code
+
+        context->pushContext(globalScope->getConstructorCommandCount());
+		context->scopeAllocate(_allocatedDataSize, _allocatedScopeSize);
+
+		context->run();
+
+        context->runDestructorCommands();
     }
 
     void ExpressionContext::addVariable(xpression::Variable* pVariable) {
@@ -171,6 +177,8 @@ namespace xpression {
 
         // update the last added variable' offset
         globalScope->updateLastVariableOffset();
+        // need re-generate code after add new variable
+        _needRegenerateCode = true;
     }
 
     VariableUpdater* ExpressionContext::getVariableUpdater() {

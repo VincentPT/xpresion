@@ -94,8 +94,10 @@ namespace xpression {
 
         void evaluate() {
             if(!_compiledResult) compile();
-            if(!_codeExecutor) generateCode();
+
             _compilationContext->startEvaluating();
+
+            if (!_codeExecutor) generateCode();
             
             Context* context = Context::getCurrent();
             // additional variable' space for the expression

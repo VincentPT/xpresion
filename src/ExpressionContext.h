@@ -3,7 +3,6 @@
 #include "VariableUpdater.h"
 
 namespace ffscript {
-    class CLamdaProg;
     class Program;
 }
 
@@ -30,12 +29,15 @@ namespace xpression {
 
     class ExpressionContext {
         SimpleCompilerSuite* _pCompilerSuite;
-        ffscript::CLamdaProg* _pCustomScript;
         ffscript::Program* _pRawProgram;
         VariableManager* _pVariableManager;
         UserData   _userData;
         ExpressionEventManager* _eventManager;
+        int _allocatedDataSize;
+        int _allocatedScopeSize;
         bool _needUpdateVariable;
+        bool _needRunGlobalCode;
+        bool _needRegenerateCode;
     public:
         ExpressionContext();
         ~ExpressionContext();
@@ -43,7 +45,6 @@ namespace xpression {
         SimpleCompilerSuite* getCompilerSuite() const;
         void setCustomScript(const wchar_t* customScript);
         void startEvaluating();
-        void stopEvaluating();
         void addVariable(Variable* pVariable);
         VariableUpdater* getVariableUpdater();
         void setVariableUpdater(VariableUpdater* pVariableUpdater);
