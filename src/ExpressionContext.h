@@ -28,7 +28,7 @@ namespace xpression {
     };
 
     class ExpressionContext {
-        SimpleCompilerSuite* _pCompilerSuite;
+        SimpleCompilerSuite* _pCompilerSuite; 
         ffscript::Program* _pRawProgram;
         VariableManager* _pVariableManager;
         UserData   _userData;
@@ -46,6 +46,7 @@ namespace xpression {
         void setCustomScript(const wchar_t* customScript);
         void startEvaluating();
         void addVariable(Variable* pVariable);
+        void removeVariable(Variable* pVariable);
         VariableUpdater* getVariableUpdater();
         void setVariableUpdater(VariableUpdater* pVariableUpdater);
         void setUserData(const UserData& userData);

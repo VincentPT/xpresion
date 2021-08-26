@@ -181,6 +181,10 @@ namespace xpression {
         _needRegenerateCode = true;
     }
 
+    void ExpressionContext::removeVariable(Variable* pVariable) {
+        _pVariableManager->removeVariable(pVariable);
+    }
+
     VariableUpdater* ExpressionContext::getVariableUpdater() {
         if(_pVariableManager == nullptr) {
             return nullptr;

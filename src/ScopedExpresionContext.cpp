@@ -28,6 +28,10 @@ namespace xpression {
     void ScopedExpresionContext::addVariable(Variable* pVariable) {
         _pExpressionContext->addVariable(pVariable);
     }
+
+    void ScopedExpresionContext::removeVariable(Variable* pVariable) {
+        _pExpressionContext->removeVariable(pVariable);
+    }
     
     VariableUpdater* ScopedExpresionContext::getVariableUpdater() {
         return _pExpressionContext->getVariableUpdater();

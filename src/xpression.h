@@ -33,5 +33,9 @@ namespace xpression {
         AutoVariable(const std::string& name) : XVariable(name) {
             autoRegistVariable();
         }
+        ~AutoVariable() {
+            auto context = ScopedExpresionContext::current();
+            context->removeVariable(get());
+        }
     };
 }

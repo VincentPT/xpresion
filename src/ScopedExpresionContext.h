@@ -16,6 +16,7 @@ namespace xpression {
 
         void setCustomScript(const wchar_t* customScript);
         void addVariable(Variable* pVariable);
+        void removeVariable(Variable* pVariable);
         VariableUpdater* getVariableUpdater();
         void setVariableUpdater(VariableUpdater* pVariableUpdater);
 

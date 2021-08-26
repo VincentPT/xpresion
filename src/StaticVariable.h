@@ -7,7 +7,7 @@ namespace xpression {
     // transition object to set variable for an expression context
     struct Variable {
         const char* name;
-        const void* dataPtr;
+        void* dataPtr;
         int dataSize;
         DataType type;
     };
@@ -41,6 +41,14 @@ namespace xpression {
 
         Variable* get() {
             return &_rawVariable;
+        }
+
+        T& operator*() {
+            return *(T*)_rawVariable.dataPtr;
+        }
+
+        const T& operator*() const {
+            return *(T*)_rawVariable.dataPtr;
         }
     };
 }

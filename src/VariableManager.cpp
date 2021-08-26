@@ -11,11 +11,21 @@ namespace xpression {
     }
     VariableManager::~VariableManager() {}
 
-    void VariableManager::addVariable(const Variable* pVariable) {
-        auto it = _staticVariables.insert(std::make_pair<std::string, Variable>(pVariable->name, Variable(*pVariable)));
+    void VariableManager::addVariable(Variable* pVariable) {
+        auto it = _staticVariables.insert(std::pair<std::string, Variable*>(pVariable->name, pVariable));
         if (it.second == false) {
 			throw std::runtime_error("Duplicate variable");
 		}
+    }
+
+    void VariableManager::removeVariable(Variable* pVariable) {
+        auto it = _staticVariables.find(pVariable->name);
+        if (it != _staticVariables.end()) {
+			_staticVariables.erase(it);
+		}
+        _notSetDataVariables.remove_if([pVariable](const UpdateInfo& info){
+            return !strcmp(pVariable->name, info.pVariable->getName().c_str());
+        });
     }
 
     void VariableManager::addRequestUpdateVariable(ffscript::Variable* pScriptVariable, bool needAskUser) {
@@ -30,9 +40,9 @@ namespace xpression {
             if(it == _staticVariables.end()) {
                 throw std::runtime_error("Internal error: variable is not cached");
             }
-            auto& staticVariable = it->second;
+            auto staticVariable = it->second;
             if(!updateInfo.updated && _variableUpdateCallback) {
-                updateInfo.updated = _variableUpdateCallback->onRequestUpdate(&staticVariable) && staticVariable.dataPtr != nullptr;
+                updateInfo.updated = _variableUpdateCallback->onRequestUpdate(staticVariable) && staticVariable->dataPtr != nullptr;
             }
            
             if(updateInfo.updated) {
@@ -40,14 +50,15 @@ namespace xpression {
                 void* variableDataAddressDst =
                     _variableContext->getAbsoluteAddress(_variableContext->getCurrentOffset() + pVariable->getOffset());
 
-                if(typeSize(staticVariable.type) != staticVariable.dataSize) {
+                if(typeSize(staticVariable->type) != staticVariable->dataSize) {
                     throw std::runtime_error("malformed variable data");
                 }
-                if(pVariable->getSize() != staticVariable.dataSize) {
+                if(pVariable->getSize() != staticVariable->dataSize) {
                     throw std::runtime_error("type size mismatch");
                 }
 
-                memcpy_s(variableDataAddressDst, pVariable->getSize(), staticVariable.dataPtr, staticVariable.dataSize);
+                memcpy_s(variableDataAddressDst, pVariable->getSize(), staticVariable->dataPtr, staticVariable->dataSize);
+                staticVariable->dataPtr = variableDataAddressDst;
             }
         }
     }

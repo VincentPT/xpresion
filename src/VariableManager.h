@@ -14,7 +14,7 @@ namespace xpression {
             ffscript::Variable* pVariable;
             bool updated;
         };
-        std::map<std::string, Variable> _staticVariables;
+        std::map<std::string, Variable*> _staticVariables;
         // variables are need to set data 
         std::list<UpdateInfo> _notSetDataVariables;
         VariableUpdater* _variableUpdateCallback;
@@ -23,7 +23,8 @@ namespace xpression {
         VariableManager(ffscript::Context* variableContext);
         ~VariableManager();
 
-        void addVariable(const Variable* pVariable);
+        void addVariable(Variable* pVariable);
+        void removeVariable(Variable* pVariable);
         void addRequestUpdateVariable(ffscript::Variable* pScriptVariable, bool needAskUser);
         void requestUpdateVariables();
         void checkVariablesFullFilled();
