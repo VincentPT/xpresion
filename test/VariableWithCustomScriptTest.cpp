@@ -96,3 +96,23 @@ TEST(ExpressionCpp, testVarialbeWithScript5)
 
     EXPECT_EQ(7, e.getResultInt());
 }
+
+TEST(ExpressionCpp, testVarialbeWithScript6)
+{
+    // add variable before set custom script
+    ScopedExpresionContext scopedContext;
+    AutoVariable<int> y("y", 3);
+    scopedContext.setCustomScript(
+        L"int n = 1;\n"
+        L"int sum(int a, int b) {\n"
+        L"  return a + b + n;\n"
+        L"}"
+    );
+    
+    AutoVariable<int> x("x", 2);
+    
+    ExpressionCpp e(L"1 + sum(x,y)");
+    e.evaluate();
+
+    EXPECT_EQ(7, e.getResultInt());
+}
