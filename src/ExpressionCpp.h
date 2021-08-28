@@ -22,6 +22,7 @@ namespace xpression {
         DataType getResultType() const;
 
         void addVariable(struct Variable* pVariable);
+        void fillVariable(const char* name, Variable* resultVariable);
     };
 
     EXPRESSIONCPP_API const char* getTypeName(DataType dt);

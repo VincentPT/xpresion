@@ -63,6 +63,10 @@ namespace xpression {
                 throw std::runtime_error("No instance of ExpressionContext for current thread found");
             }
             _compilationContext->addExpressionEventHandler(this);
+
+            auto compilerSuite = _compilationContext->getCompilerSuite();
+            _expressionScope = new ImmediateScope(compilerSuite->getCompiler().get());
+            _expressionScope->setParent(compilerSuite->getGlobalScope());
         }
         ~InternalExpressionCpp() {
             if(_expressionScope) {
@@ -199,8 +203,7 @@ namespace xpression {
         void addVariable(Variable* pVariable) {
              auto compilerSuite = _compilationContext->getCompilerSuite();
              auto globalScope = compilerSuite->getGlobalScope();
-            if(_expressionScope == nullptr) {
-                _expressionScope = new ImmediateScope(compilerSuite->getCompiler().get());
+            if(_pVariableManager == nullptr) {
                 _pVariableManager = new VariableManager(globalScope->getContext());
             }
 
@@ -236,6 +239,34 @@ namespace xpression {
             _pVariableManager->addRequestUpdateVariable(pScriptVariable, pVariable->dataPtr == nullptr);
             // the variable now is register success, then it need evaluate before expression evaluate
             _needUpdateVariable = true;
+        }
+
+        void fillVariable(const char* name, Variable* resultVariable) {
+            if(_expressionScope == nullptr) {
+                _compilationContext->fillVariable(name, resultVariable);
+                return;
+            }
+
+            auto pCompilerSuite = _compilationContext->getCompilerSuite();
+            auto globalScope = pCompilerSuite->getGlobalScope();
+            auto& compiler = pCompilerSuite->getCompiler();
+            auto scriptVarible = _expressionScope->findVariable(name);
+            if(scriptVarible == nullptr) {
+                _compilationContext->fillVariable(name, resultVariable);
+                return;
+            }
+
+            auto variableContext = globalScope->getContext();
+
+            auto& typeManager = pCompilerSuite->getTypeManager();
+            auto& basicType = typeManager->getBasicTypes();
+            resultVariable->type = dynamicToStatic(basicType, scriptVarible->getDataType().iType());
+            resultVariable->dataSize = compiler->getTypeSize(scriptVarible->getDataType());
+
+            void* variableDataAddressDst =
+                        variableContext->getAbsoluteAddress(variableContext->getCurrentOffset() + scriptVarible->getOffset());
+
+            resultVariable->dataPtr = variableDataAddressDst;
         }
     };
 
@@ -286,5 +317,9 @@ namespace xpression {
 
     void ExpressionCpp::addVariable(struct Variable* pVariable) {
         _pInternalExpresion->addVariable(pVariable);
+    }
+
+    void ExpressionCpp::fillVariable(const char* name, Variable* resultVariable) {
+        _pInternalExpresion->fillVariable(name, resultVariable);
     }
 }
