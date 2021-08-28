@@ -15,6 +15,7 @@
 #include "ExpUnitExecutor.h"
 #include "Preprocessor.h"
 #include "CompiledExpression.h"
+#include "ImmediateScope.h"
 #include <string>
 
 using namespace ffscript;
@@ -29,7 +30,7 @@ namespace xpression {
         SimpleCompilerSuite();
         ~SimpleCompilerSuite();
 
-        ExpressionRef compileExpression(const std::wstring& expstr);
+        ExpressionRef compileExpression(const std::wstring& expstr, ImmediateScope* pLocalScope = nullptr);
         ExpUnitExecutorRef generateCode(const ExpressionRef& exp);
         //CompiledExpressionRef compileExpressionInProgramContext(const std::wstring& expstr);
         Program* compileProgram(const wchar_t* codeStart, const wchar_t* codeEnd);

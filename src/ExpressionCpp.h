@@ -19,8 +19,9 @@ namespace xpression {
         double getResultDouble();
         long long getResultLong();
         const wchar_t* getResultString();
-
         DataType getResultType() const;
+
+        void addVariable(struct Variable* pVariable);
     };
 
     EXPRESSIONCPP_API const char* getTypeName(DataType dt);

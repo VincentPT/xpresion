@@ -8,7 +8,7 @@ namespace xpression {
         _pCompiler = (ScriptCompilerRef)(new ScriptCompiler());
 
         // Since we only run a single expression, 128 bytes is enough
-        _globalScopeRef = (GlobalScopeRef)(new GlobalScope(128, _pCompiler.get()));
+        _globalScopeRef = (GlobalScopeRef)(new GlobalScope(256, _pCompiler.get()));
 
         FunctionRegisterHelper funcLibHelper(_pCompiler.get());
         auto& typeManager = _pCompiler->getTypeManager();
@@ -27,14 +27,20 @@ namespace xpression {
     SimpleCompilerSuite::~SimpleCompilerSuite() {
     }
 
-    ExpressionRef SimpleCompilerSuite::compileExpression(const std::wstring& expstr) {
+    ExpressionRef SimpleCompilerSuite::compileExpression(const std::wstring& expstr, ImmediateScope* pLocalScope) {
 		ExpressionParser parser(_pCompiler.get());
 		_pCompiler->pushScope(_globalScopeRef.get());
+		if(pLocalScope) {
+			_pCompiler->pushScope(pLocalScope);
+		}
 
 		// auto pop scope when the function exit
 		std::unique_ptr<ScriptCompiler, std::function<void(ScriptCompiler*)>> autoPopScope(
-			_pCompiler.get(),[](ScriptCompiler* compiler){
+			_pCompiler.get(),[pLocalScope](ScriptCompiler* compiler){
 				compiler->popScope();
+				if(pLocalScope) {
+					compiler->popScope();
+				}
 			});
 
 

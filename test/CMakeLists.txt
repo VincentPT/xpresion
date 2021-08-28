@@ -15,6 +15,7 @@ SET (PROJECT_SOURCE_FILES
     GlobalContextVariableTests.cpp
     AutoVariableTests.cpp
     VariableWithCustomScriptTest.cpp
+    LocalContextVariableTests.cpp
 )
 
 add_executable(${PROJECT_NAME} main.cpp ${PROJECT_SOURCE_FILES})

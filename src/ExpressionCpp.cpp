@@ -2,6 +2,8 @@
 #include "SimpleCompilerSuite.h"
 #include "ExpressionContext.h"
 #include "xutility.h"
+#include "ImmediateScope.h"
+#include "VariableManager.h"
 #include <Utils.h>
 
 #include <exception>
@@ -44,15 +46,18 @@ namespace xpression {
     class InternalExpressionCpp : public ExpressionEventHandler {
         friend class ExpressionCpp;
         ExpressionContext* _compilationContext;
+        VariableManager* _pVariableManager;
+        ImmediateScope* _expressionScope;
         ExpressionRef _compiledResult;
         ExpUnitExecutorRef _codeExecutor;
         wstring _expresionStr;
-        bool _evaluated;
         DataType _resultType;
         typedef std::unique_ptr<void, std::function<void(void*)>> ResultDeletor;
         ResultDeletor _manualDeletedResult;
+        bool _evaluated;
+        bool _needUpdateVariable;
     public:
-        InternalExpressionCpp(): _evaluated(false), _resultType(DataType::Unknown)  {
+        InternalExpressionCpp(): _evaluated(false), _resultType(DataType::Unknown), _expressionScope(nullptr), _pVariableManager(nullptr)  {
             _compilationContext = ExpressionContext::getCurrentContext();
             if( _compilationContext == nullptr) {
                 throw std::runtime_error("No instance of ExpressionContext for current thread found");
@@ -60,6 +65,12 @@ namespace xpression {
             _compilationContext->addExpressionEventHandler(this);
         }
         ~InternalExpressionCpp() {
+            if(_expressionScope) {
+                delete _expressionScope;
+            }
+            if(_pVariableManager) {
+                delete _pVariableManager;
+            }
             _compilationContext->removeExpressionEventHandler(this);
         }
 
@@ -78,7 +89,7 @@ namespace xpression {
             // compilerSuite->compileExpression(_expresionStr);
 
              _codeExecutor.reset();
-            _compiledResult = compilerSuite->compileExpression(_expresionStr);
+            _compiledResult = compilerSuite->compileExpression(_expresionStr, _expressionScope);
 
             auto dynamicReturnType = _compiledResult->getRoot()->getReturnType().iType();
             _resultType = dynamicToStatic(basicTypes, dynamicReturnType);
@@ -96,14 +107,30 @@ namespace xpression {
             if(!_compiledResult) compile();
 
             _compilationContext->startEvaluating();
+            Context* context = Context::getCurrent();
+
+            // copy data from static variable to script variable
+            if(_pVariableManager && _needUpdateVariable) {
+                _expressionScope->setBaseOffset(context->getCurrentScopeSize());
+                _expressionScope->updateVariableOffset();
+
+                _pVariableManager->requestUpdateVariables();
+                _pVariableManager->checkVariablesFullFilled();
+                // all registered variables are updated now
+                _needUpdateVariable = false;
+            }
 
             if (!_codeExecutor) generateCode();
             
-            Context* context = Context::getCurrent();
             // additional variable' space for the expression
             int variableSpace = 0; // => no variable
             // space for expression itself require to run the code
             int requireSpaceToRunCode = _codeExecutor->getLocalSize();
+
+            if(_expressionScope) {
+                variableSpace += _expressionScope->getDataSize();
+            }
+
             // allocated buffer enough to run expression
             context->scopeAllocate(variableSpace, requireSpaceToRunCode);
             _codeExecutor->runCode();
@@ -168,6 +195,48 @@ namespace xpression {
         virtual void onRequestUpdate() {
             _codeExecutor.reset();
         }
+
+        void addVariable(Variable* pVariable) {
+             auto compilerSuite = _compilationContext->getCompilerSuite();
+             auto globalScope = compilerSuite->getGlobalScope();
+            if(_expressionScope == nullptr) {
+                _expressionScope = new ImmediateScope(compilerSuite->getCompiler().get());
+                _pVariableManager = new VariableManager(globalScope->getContext());
+            }
+
+            if(pVariable->name == nullptr || pVariable->name[0] == 0) {
+                throw std::runtime_error("Variable name cannot be empty");
+            }
+            if(pVariable->type == DataType::Unknown) {
+                throw std::runtime_error("type of variable '" + std::string(pVariable->name) + "' is unknown");
+            }
+            if(pVariable->dataPtr == nullptr) {
+                throw std::runtime_error("expression does not support delay variable updating(variable's data is null)");
+            }
+
+            // convert static type to lambda script type
+            auto& typeManager = compilerSuite->getTypeManager();
+            auto& basicType = typeManager->getBasicTypes();
+            int iType = staticToDynamic(basicType, pVariable->type);
+            if(DATA_TYPE_UNKNOWN == iType) {
+                throw std::runtime_error("type of variable '" + std::string(pVariable->name) + "' is not supported");
+            }
+
+            // regist variable with specified name
+            auto pScriptVariable = _expressionScope->registVariable(pVariable->name);
+            if(pScriptVariable == nullptr) {
+                throw std::runtime_error("Variable '" + std::string(pVariable->name) + "' is already exist");
+            }
+
+            // set variable type
+            ScriptType type(iType, typeManager->getType(iType));
+            pScriptVariable->setDataType(type);
+
+            _pVariableManager->addVariable(pVariable);
+            _pVariableManager->addRequestUpdateVariable(pScriptVariable, pVariable->dataPtr == nullptr);
+            // the variable now is register success, then it need evaluate before expression evaluate
+            _needUpdateVariable = true;
+        }
     };
 
     ExpressionCpp::ExpressionCpp(const wchar_t* expStr) {
@@ -213,5 +282,9 @@ namespace xpression {
 
     const wchar_t* ExpressionCpp::getResultString() {
         return _pInternalExpresion->getResultString();
+    }
+
+    void ExpressionCpp::addVariable(struct Variable* pVariable) {
+        _pInternalExpresion->addVariable(pVariable);
     }
 }
