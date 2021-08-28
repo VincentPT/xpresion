@@ -5,11 +5,22 @@
 
 using namespace xpression;
 
-TEST(ExpressionCpp, testLocalVariable) {
+TEST(ExpressionCpp, testLocalVariable1) {
     XVariable<double> x("x", 3.0);
 
     ScopedExpresionContext scopedContext;
     ExpressionCpp e(L"1 + x");
+    e.addVariable(x.get());
+    e.evaluate();
+
+    EXPECT_EQ(4.0, e.getResultDouble());
+}
+
+TEST(ExpressionCpp, testLocalVariable2) {
+    ScopedExpresionContext scopedExpresionContext;
+    XVariable<int> x("x", 3);
+    std::wstring expStr = L"1.0 + x";
+    ExpressionCpp e(expStr.c_str());
     e.addVariable(x.get());
     e.evaluate();
 

@@ -104,6 +104,16 @@ namespace xpression {
             if(compilerSuite == nullptr) {
                 throw std::runtime_error("Compiler is no longer exist in current context due to memory saving process is enable");
             }
+            auto globalScope = compilerSuite->getGlobalScope();
+            auto oldBaseOffset = globalScope->getBaseOffset();
+            globalScope->setBaseOffset(oldBaseOffset + _expressionScope->getDataSize());
+
+            // auto restore base offset
+            std::unique_ptr<GlobalScope, std::function<void(GlobalScope*)>> autoRestoreBaseOffset(
+                globalScope,[oldBaseOffset](GlobalScope* globalScope){
+                     globalScope->setBaseOffset(oldBaseOffset);
+                });
+
             _codeExecutor = compilerSuite->generateCode(_compiledResult);
         }
 
@@ -190,7 +200,7 @@ namespace xpression {
         }
 
         DataType getResultType() const {
-            if(_evaluated) {
+            if(!_evaluated) {
                 throw std::runtime_error("Expresion has not been evaluated");
             }
             return _resultType;

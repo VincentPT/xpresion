@@ -51,6 +51,10 @@ namespace xpression {
             return *(T*)_rawVariable.dataPtr;
         }
 
+        const std::string& name() {
+            return _name;
+        }
+
         void sync();
     };
 }
