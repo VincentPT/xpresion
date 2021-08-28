@@ -38,4 +38,13 @@ namespace xpression {
             context->removeVariable(get());
         }
     };
+
+    template <class T>
+    void XVariable<T>::sync() {
+        auto context = ScopedExpresionContext::current();
+        if(context == nullptr) {
+            throw std::runtime_error("There is no expression context in the variable'scope");
+        }
+        context->fillVariable(this->_name.c_str(), get());
+    }
 }

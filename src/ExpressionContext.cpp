@@ -212,4 +212,27 @@ namespace xpression {
     void ExpressionContext::removeExpressionEventHandler(ExpressionEventHandler* handler) {
         _eventManager->removeHandler(handler);
     }
+
+    void ExpressionContext::fillVariable(const char* name, Variable* resultVariable) {
+        auto globalScope = _pCompilerSuite->getGlobalScope();
+        auto& compiler = _pCompilerSuite->getCompiler();
+        auto scriptVarible = globalScope->findVariable(name);
+        if(scriptVarible == nullptr) {
+            throw std::runtime_error("variable '" + std::string(name) + "'not found");
+        }
+
+        // need run global code before fill variable 
+        startEvaluating();
+        auto variableContext = globalScope->getContext();
+
+        auto& typeManager = _pCompilerSuite->getTypeManager();
+        auto& basicType = typeManager->getBasicTypes();
+        resultVariable->type = dynamicToStatic(basicType, scriptVarible->getDataType().iType());
+        resultVariable->dataSize = compiler->getTypeSize(scriptVarible->getDataType());
+
+        void* variableDataAddressDst =
+                    variableContext->getAbsoluteAddress(variableContext->getCurrentOffset() + scriptVarible->getOffset());
+
+        resultVariable->dataPtr = variableDataAddressDst;
+    }
 }

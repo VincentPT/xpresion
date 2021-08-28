@@ -50,5 +50,7 @@ namespace xpression {
         const T& operator*() const {
             return *(T*)_rawVariable.dataPtr;
         }
+
+        void sync();
     };
 }

@@ -53,6 +53,7 @@ namespace xpression {
         UserData& getUserData();
         void addExpressionEventHandler(ExpressionEventHandler* handler);
         void removeExpressionEventHandler(ExpressionEventHandler* handler);
+        void fillVariable(const char* name, Variable* resultVariable);
 
         static ExpressionContext* getCurrentContext();
         static void setCurrentContext(ExpressionContext* pContext);

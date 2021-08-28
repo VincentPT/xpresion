@@ -49,4 +49,8 @@ namespace xpression {
         }
         return nullptr;
     }
+
+    void ScopedExpresionContext::fillVariable(const char* name, Variable* resultVariable) {
+        _pExpressionContext->fillVariable(name, resultVariable);
+    }
 }

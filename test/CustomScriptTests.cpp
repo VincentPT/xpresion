@@ -55,3 +55,22 @@ TEST(ExpressionCpp, testCustomScript3)
 
     EXPECT_EQ(9, e2.getResultInt());
 }
+
+TEST(ExpressionCpp, testVaribleFromCustomScript)
+{
+    // test evaluating expression call and custom script
+    ScopedExpresionContext scopedContext;
+    scopedContext.setCustomScript(
+        L"int n = 4;\n"
+        L"int sum(int a, int b) {\n"
+        L"  return a + b + n;\n"
+        L"}"
+    );
+
+    XVariable<int> n("n");
+    // sync variable with current expression context
+    n.sync();
+
+    // check value of variable after synchornizing
+    EXPECT_EQ(4, *n);
+}

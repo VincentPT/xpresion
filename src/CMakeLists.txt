@@ -20,6 +20,8 @@ SET (PROJECT_SOURCE_FILES
 	VariableUpdater.h
 	xpression.h
 	xpression.cpp
+	ImmediateScope.h
+	ImmediateScope.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
