@@ -19,7 +19,7 @@ TEST(ExpressionCpp, testLocalVariable) {
 TEST(ExpressionCpp, testLocalVariableWithScript) {
     XVariable<double> x("x", 3.0);
 
-    ScopedExpresionContext scopedContext;
+    ScopedExpresionContext scopedContext(256);
     scopedContext.setCustomScript(
         L"double x = 1;\n"
         L"double sum(double a, double b) {\n"
@@ -37,7 +37,7 @@ TEST(ExpressionCpp, testLocalVariableWithScript) {
 TEST(ExpressionCpp, testGetLocalVariable) {
     XVariable<double> x("x", 0.0);
 
-    ScopedExpresionContext scopedContext;
+    ScopedExpresionContext scopedContext(256);
     scopedContext.setCustomScript(
         L"double x = 1;\n"
         L"double sum(double a, double b) {\n"
@@ -55,7 +55,7 @@ TEST(ExpressionCpp, testGetLocalVariable) {
 TEST(ExpressionCpp, testMixLocalGlobalVariables1) {
     XVariable<double> x("x", 2.0);
 
-    ScopedExpresionContext scopedContext;
+    ScopedExpresionContext scopedContext(256);
     scopedContext.setCustomScript(
         L"double x = 1;\n"
         L"double sum(double a, double b) {\n"
@@ -79,7 +79,7 @@ TEST(ExpressionCpp, testMixLocalGlobalVariables1) {
 TEST(ExpressionCpp, testMixLocalGlobalVariables2) {
     XVariable<double> x("x", 2.0);
 
-    ScopedExpresionContext scopedContext;
+    ScopedExpresionContext scopedContext(256);
     scopedContext.setCustomScript(
         L"double x = 1;\n"
         L"double sum(double a, double b) {\n"

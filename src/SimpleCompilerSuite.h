@@ -27,7 +27,7 @@ namespace xpression {
         GlobalScopeRef _globalScopeRef;
         PreprocessorRef _preprocessor;
     public:
-        SimpleCompilerSuite();
+        SimpleCompilerSuite(int stackSize);
         ~SimpleCompilerSuite();
 
         ExpressionRef compileExpression(const std::wstring& expstr, ImmediateScope* pLocalScope = nullptr);

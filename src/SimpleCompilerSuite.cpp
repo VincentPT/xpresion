@@ -4,11 +4,10 @@
 #include <memory>
 
 namespace xpression {
-    SimpleCompilerSuite::SimpleCompilerSuite() {
+    SimpleCompilerSuite::SimpleCompilerSuite(int stackSize) {
         _pCompiler = (ScriptCompilerRef)(new ScriptCompiler());
 
-        // Since we only run a single expression, 128 bytes is enough
-        _globalScopeRef = (GlobalScopeRef)(new GlobalScope(256, _pCompiler.get()));
+        _globalScopeRef = (GlobalScopeRef)(new GlobalScope(stackSize, _pCompiler.get()));
 
         FunctionRegisterHelper funcLibHelper(_pCompiler.get());
         auto& typeManager = _pCompiler->getTypeManager();

@@ -36,11 +36,11 @@ namespace xpression {
         }
     };
 
-    ExpressionContext::ExpressionContext() :
+    ExpressionContext::ExpressionContext(int stackSize) :
         _pRawProgram(nullptr), _allocatedDataSize(0), _allocatedScopeSize(0),
         _pVariableManager(nullptr), _needUpdateVariable(false),
         _needRunGlobalCode(false), _needRegenerateCode(false) {
-        _pCompilerSuite = new SimpleCompilerSuite();
+        _pCompilerSuite = new SimpleCompilerSuite(stackSize);
         _pCompilerSuite->setPreprocessor(std::make_shared<DefaultPreprocessor>());
         _userData.data = nullptr;
         _userData.dt = UserDataType::NotUsed;

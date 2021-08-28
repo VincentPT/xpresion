@@ -39,7 +39,7 @@ namespace xpression {
         bool _needRunGlobalCode;
         bool _needRegenerateCode;
     public:
-        ExpressionContext();
+        ExpressionContext(int stackSize = 128);
         ~ExpressionContext();
 
         SimpleCompilerSuite* getCompilerSuite() const;

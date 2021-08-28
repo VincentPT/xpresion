@@ -2,9 +2,9 @@
 #include "ExpressionContext.h"
 
 namespace xpression {
-    ScopedExpresionContext::ScopedExpresionContext() {
+    ScopedExpresionContext::ScopedExpresionContext(int stackSize) {
         _pPreviousExpressionContext = ExpressionContext::getCurrentContext();
-        _pExpressionContext = new ExpressionContext();
+        _pExpressionContext = new ExpressionContext(stackSize);
 
         UserData userData = {0};
         userData.data = this;

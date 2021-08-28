@@ -11,7 +11,7 @@ namespace xpression {
         ExpressionContext* _pExpressionContext;
         ExpressionContext* _pPreviousExpressionContext;
     public:
-        ScopedExpresionContext();
+        ScopedExpresionContext(int stackSize = 128);
         ~ScopedExpresionContext();
 
         void setCustomScript(const wchar_t* customScript);
