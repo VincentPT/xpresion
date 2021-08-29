@@ -143,7 +143,7 @@ using namespace std;
                 pVariable->type = DataType::Integer;
                 // delay updation need to specify data.
                 // variable data need while evaluating script.
-                pVariable->dataPtr = &x;
+                pVariable->dataPtr = &z;
                 return true;
             }
             return false;

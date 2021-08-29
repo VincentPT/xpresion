@@ -166,10 +166,10 @@ int main(int argc, char* argv[]) {
     {
         ScopedExpresionContext scopedContext(1024);
 
-        int x, y;
-        setVariableUpdater([&x](Variable* pVariable){
+        int x, y, z;
+        setVariableUpdater([&](Variable* pVariable){
             if(!strcmp(pVariable->name,"x")) {
-                x = 3;
+                x = 1;
                 // delay declaration need to specify type.
                 // variable type need while compiling script.
                 pVariable->type = DataType::Integer;
@@ -178,17 +178,27 @@ int main(int argc, char* argv[]) {
                 pVariable->dataPtr = &x;
                 return true;
             }
+            if(!strcmp(pVariable->name,"z")) {
+                z = 3;
+                // delay declaration need to specify type.
+                // variable type need while compiling script.
+                pVariable->type = DataType::Integer;
+                // delay updation need to specify data.
+                // variable data need while evaluating script.
+                pVariable->dataPtr = &z;
+                return true;
+            }
             return false;
         });
 
         scopedContext.setCustomScript(
             L"int foo(int a, int b) {\n"
-            L"  return a + b + x;\n"
+            L"  return a + b + z;\n"
             L"}"
         );
 
 
-        const wchar_t* expStr = L"foo(1, y)";
+        const wchar_t* expStr = L"foo(x, y)";
         ExpressionCpp e(expStr);
 
         setVariableUpdater(&e, [&y](Variable* pVariable){
