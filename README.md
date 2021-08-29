@@ -1,4 +1,5 @@
 # Introduce
+This is a C++ Expression calculator library.
 This project utilizes [ffscript](https://github.com/VincentPT/ffscript) library - a script compiler project - to make usage of expression calculation with ease.
 The project include [ffscript](https://github.com/VincentPT/ffscript) as a submodule. So, also remember to clone [ffscript](https://github.com/VincentPT/ffscript) module.
 
