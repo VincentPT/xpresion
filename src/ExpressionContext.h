@@ -4,6 +4,7 @@
 
 namespace ffscript {
     class Program;
+    class Variable;
 }
 
 namespace xpression {
@@ -45,7 +46,7 @@ namespace xpression {
         SimpleCompilerSuite* getCompilerSuite() const;
         void setCustomScript(const wchar_t* customScript);
         void startEvaluating();
-        void addVariable(Variable* pVariable);
+        ffscript::Variable* addVariable(Variable* pVariable);
         void removeVariable(Variable* pVariable);
         VariableUpdater* getVariableUpdater();
         void setVariableUpdater(VariableUpdater* pVariableUpdater, bool deleteIt = false);
@@ -54,6 +55,7 @@ namespace xpression {
         void addExpressionEventHandler(ExpressionEventHandler* handler);
         void removeExpressionEventHandler(ExpressionEventHandler* handler);
         void fillVariable(const char* name, Variable* resultVariable);
+        VariableManager* getVariableManager();
 
         static ExpressionContext* getCurrentContext();
         static void setCurrentContext(ExpressionContext* pContext);

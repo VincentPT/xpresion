@@ -4,10 +4,10 @@
 #include <memory>
 
 namespace xpression {
-    SimpleCompilerSuite::SimpleCompilerSuite(int stackSize) {
+    SimpleCompilerSuite::SimpleCompilerSuite(int stackSize, GlobalScopeCreator* globalScopeCreator) {
         _pCompiler = (ScriptCompilerRef)(new ScriptCompiler());
 
-        _globalScopeRef = (GlobalScopeRef)(new GlobalScope(stackSize, _pCompiler.get()));
+        _globalScopeRef = (GlobalScopeRef)(globalScopeCreator->create(stackSize, _pCompiler.get()));
 
         FunctionRegisterHelper funcLibHelper(_pCompiler.get());
         auto& typeManager = _pCompiler->getTypeManager();

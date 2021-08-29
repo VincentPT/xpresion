@@ -16,6 +16,7 @@
 #include "Preprocessor.h"
 #include "CompiledExpression.h"
 #include "ImmediateScope.h"
+#include "ExpressionInternal.h"
 #include <string>
 
 using namespace ffscript;
@@ -27,7 +28,7 @@ namespace xpression {
         GlobalScopeRef _globalScopeRef;
         PreprocessorRef _preprocessor;
     public:
-        SimpleCompilerSuite(int stackSize);
+        SimpleCompilerSuite(int stackSize, GlobalScopeCreator* globalScopeCreator);
         ~SimpleCompilerSuite();
 
         ExpressionRef compileExpression(const std::wstring& expstr, ImmediateScope* pLocalScope = nullptr);

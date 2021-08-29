@@ -9,6 +9,8 @@
 #include <string>
 #include <list>
 #include "VariableManager.h"
+#include "ExpressionGlobalScope.h"
+#include "ExpressionInternal.h"
 
 namespace xpression {
 #if _WIN32 || _WIN64
@@ -36,11 +38,23 @@ namespace xpression {
         }
     };
 
+    class ExpressionGlobalScopeCreator : public GlobalScopeCreator {
+        std::function<ffscript::GlobalScope*(int, ffscript::ScriptCompiler*)> _funcCreator;
+    public:
+        ExpressionGlobalScopeCreator(std::function<ffscript::GlobalScope*(int, ffscript::ScriptCompiler*)>&& fx) : _funcCreator(fx) {}
+        ffscript::GlobalScope* create(int stackSize, ffscript::ScriptCompiler* scriptCompiler) {
+            return _funcCreator(stackSize, scriptCompiler);
+        }
+    };
+
     ExpressionContext::ExpressionContext(int stackSize) :
         _pRawProgram(nullptr), _allocatedDataSize(0), _allocatedScopeSize(0),
         _pVariableManager(nullptr), _needUpdateVariable(false),
         _needRunGlobalCode(false), _needRegenerateCode(false) {
-        _pCompilerSuite = new SimpleCompilerSuite(stackSize);
+        ExpressionGlobalScopeCreator globalScopeCreator([this](int stackSize, ffscript::ScriptCompiler* scriptCompiler){
+            return new ExpressionGlobalScope(this, stackSize, scriptCompiler);
+        });
+        _pCompilerSuite = new SimpleCompilerSuite(stackSize, &globalScopeCreator);
         _pCompilerSuite->setPreprocessor(std::make_shared<DefaultPreprocessor>());
         _userData.data = nullptr;
         _userData.dt = UserDataType::NotUsed;
@@ -139,7 +153,7 @@ namespace xpression {
         context->runDestructorCommands();
     }
 
-    void ExpressionContext::addVariable(xpression::Variable* pVariable) {
+    ffscript::Variable* ExpressionContext::addVariable(xpression::Variable* pVariable) {
         if(pVariable->name == nullptr || pVariable->name[0] == 0) {
             throw std::runtime_error("Variable name cannot be empty");
         }
@@ -179,6 +193,8 @@ namespace xpression {
         globalScope->updateLastVariableOffset();
         // need re-generate code after add new variable
         _needRegenerateCode = true;
+
+        return pScriptVariable;
     }
 
     void ExpressionContext::removeVariable(Variable* pVariable) {
@@ -234,5 +250,9 @@ namespace xpression {
                     variableContext->getAbsoluteAddress(variableContext->getCurrentOffset() + scriptVarible->getOffset());
 
         resultVariable->dataPtr = variableDataAddressDst;
+    }
+
+    VariableManager* ExpressionContext::getVariableManager() {
+        return _pVariableManager;
     }
 }

@@ -60,6 +60,78 @@ TEST(ExpressionCpp, testExpresionWithDelayUpdateVarialbeNotFound)
     EXPECT_THROW(e.evaluate(), std::exception);
 }
 
+TEST(ExpressionCpp, testExpresionWithDelayDeclareVarialbe)
+{
+    ScopedExpresionContext scopedContext;
+    int variableDataInSomeWhere = 0;
+    setVariableUpdater([&variableDataInSomeWhere](Variable* pVariable){
+        if(!strcmp(pVariable->name,"x")) {
+            variableDataInSomeWhere = 2;
+            // delay declaration need to specify type
+            // variable type need while compiling script
+            pVariable->type = DataType::Integer;
+            // delay updation need to specify data
+            // variable data need while evaluating script
+            pVariable->dataPtr = &variableDataInSomeWhere;
+            return true;
+        }
+        return false;
+    });
+
+    ExpressionCpp e(L"1 + x");
+    e.evaluate();
+
+    EXPECT_EQ(3, e.getResultInt());
+}
+
+TEST(ExpressionCpp, testExpresionWithDelayDeclareVarialbeWithScript)
+{
+    ScopedExpresionContext scopedContext;
+    int variableDataInSomeWhere = 0;
+    setVariableUpdater([&variableDataInSomeWhere](Variable* pVariable){
+        if(!strcmp(pVariable->name,"x")) {
+            variableDataInSomeWhere = 2;
+            // delay declaration need to specify type
+            // variable type need while compiling script
+            pVariable->type = DataType::Integer;
+            // delay updation need to specify data
+            // variable data need while evaluating script
+            pVariable->dataPtr = &variableDataInSomeWhere;
+            return true;
+        }
+        return false;
+    });
+
+    scopedContext.setCustomScript(
+        L"int getX() {\n"
+        L"  return x;\n"
+        L"}"
+    );
+
+    ExpressionCpp e(L"getX()");
+    e.evaluate();
+
+    EXPECT_EQ(variableDataInSomeWhere, e.getResultInt());
+}
+
+TEST(ExpressionCpp, testExpresionWithDelayDeclareVarialbeFailed)
+{
+    ScopedExpresionContext scopedContext;
+    int variableDataInSomeWhere = 0;
+    setVariableUpdater([&variableDataInSomeWhere](Variable* pVariable){
+        if(!strcmp(pVariable->name,"x")) {
+            variableDataInSomeWhere = 2;
+            pVariable->type = DataType::Integer;
+            pVariable->dataPtr = &variableDataInSomeWhere;
+            return true;
+        }
+        return false;
+    });
+
+    ExpressionCpp e(L"1 + y");
+    EXPECT_THROW(e.evaluate(), std::exception);
+}
+
 TEST(ExpressionCpp, testAddVariableTwoTimes)
 {
     ScopedExpresionContext scopedContext;

@@ -23,6 +23,10 @@ SET (PROJECT_SOURCE_FILES
 	xpression.cpp
 	ImmediateScope.h
 	ImmediateScope.cpp
+	ExpressionGlobalScope.h
+	ExpressionGlobalScope.cpp
+	ExpressionInternal.h
+	ExpressionInternal.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
