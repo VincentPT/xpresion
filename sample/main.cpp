@@ -162,5 +162,56 @@ int main(int argc, char* argv[]) {
         cout << "after evaluate '" << x.name() << "' = " << *x << endl;
     }
 
+    // delay global & local variables declaration
+    {
+        ScopedExpresionContext scopedContext(1024);
+
+        int x, y;
+        setVariableUpdater([&x](Variable* pVariable){
+            if(!strcmp(pVariable->name,"x")) {
+                x = 3;
+                // delay declaration need to specify type.
+                // variable type need while compiling script.
+                pVariable->type = DataType::Integer;
+                // delay updation need to specify data.
+                // variable data need while evaluating script.
+                pVariable->dataPtr = &x;
+                return true;
+            }
+            return false;
+        });
+
+        scopedContext.setCustomScript(
+            L"int foo(int a, int b) {\n"
+            L"  return a + b + x;\n"
+            L"}"
+        );
+
+
+        const wchar_t* expStr = L"foo(1, y)";
+        ExpressionCpp e(expStr);
+
+        setVariableUpdater(&e, [&y](Variable* pVariable){
+            if(!strcmp(pVariable->name,"y")) {
+                y = 2;
+                // delay declaration need to specify type.
+                // variable type need while compiling script.
+                pVariable->type = DataType::Integer;
+                // delay updation need to specify data.
+                // variable data need while evaluating script.
+                pVariable->dataPtr = &y;
+                return true;
+            }
+            return false;
+        });
+
+        // delay update will run before expression is evaluated
+        e.evaluate();
+
+        auto returnType = e.getResultType();
+        wcout << L"evaluate exp '" << expStr;
+        cout << "' result = " << e.getResultInt() << " (" << typeName(returnType) << ")" << endl;
+    }
+
     return 0;
 }
