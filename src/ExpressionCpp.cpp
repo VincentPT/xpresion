@@ -89,9 +89,6 @@ namespace xpression {
 
             auto program = compilerSuite->getCompiler()->getProgram();
 
-            // auto compilerResult = program ? compilerSuite->compileExpressionInProgramContext(_expresionStr) :
-            // compilerSuite->compileExpression(_expresionStr);
-
              _codeExecutor.reset();
             _compiledResult = compilerSuite->compileExpression(_expresionStr, _expressionScope);
 

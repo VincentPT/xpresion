@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <functional>
+#include <memory>
 
 #include "VariableUpdater.h"
 
@@ -18,6 +19,7 @@ namespace xpression {
         // variables are need to set data 
         std::list<UpdateInfo> _notSetDataVariables;
         VariableUpdater* _variableUpdateCallback;
+        std::unique_ptr<VariableUpdater> _variableUpdateCallbackOwner;
         ffscript::Context* _variableContext;
     public:
         VariableManager(ffscript::Context* variableContext);
@@ -28,7 +30,7 @@ namespace xpression {
         void addRequestUpdateVariable(ffscript::Variable* pScriptVariable, bool needAskUser);
         void requestUpdateVariables();
         void checkVariablesFullFilled();
-        void setVariableUdater(VariableUpdater* pVariableUpdateCallback);
+        void setVariableUdater(VariableUpdater* pVariableUpdateCallback, bool deleteIt = false);
         VariableUpdater* getVariableUpdater();
     };
 }

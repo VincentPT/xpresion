@@ -17,29 +17,21 @@ TEST(ExpressionCpp, testExpresionWithNormalVarialbe)
     EXPECT_EQ(3, e.getResultInt());
 }
 
-class VariableUpdateMan : public xpression::VariableUpdater {
-    int _dataX;
-public:
-    VariableUpdateMan() {
-        _dataX = 2;
-    }
-    virtual bool onRequestUpdate(Variable* pVariable) {
-        if(!strcmp(pVariable->name,"x")) {
-            pVariable->dataPtr = &_dataX;
-            return true;
-        }
-        return false;
-    }
-};
-
 TEST(ExpressionCpp, testExpresionWithDelayUpdateVarialbe)
 {
     ScopedExpresionContext scopedContext;
     XVariable<int> x("x");
     scopedContext.addVariable(x.get());
 
-    VariableUpdateMan delayUpdater;
-    scopedContext.setVariableUpdater(&delayUpdater);
+    int variableDataInSomeWhere = 0;
+    setVariableUpdater([&variableDataInSomeWhere](Variable* pVariable){
+        if(!strcmp(pVariable->name,"x")) {
+            variableDataInSomeWhere = 2;
+            pVariable->dataPtr = &variableDataInSomeWhere;
+            return true;
+        }
+        return false;
+    });
 
     ExpressionCpp e(L"1 + x");
     e.evaluate();
@@ -54,8 +46,15 @@ TEST(ExpressionCpp, testExpresionWithDelayUpdateVarialbeNotFound)
     XVariable<int> x("y");
     scopedContext.addVariable(x.get());
 
-    VariableUpdateMan delayUpdater;
-    scopedContext.setVariableUpdater(&delayUpdater);
+    int variableDataInSomeWhere = 0;
+    setVariableUpdater([&variableDataInSomeWhere](Variable* pVariable){
+        if(!strcmp(pVariable->name,"x")) {
+            variableDataInSomeWhere = 2;
+            pVariable->dataPtr = &variableDataInSomeWhere;
+            return true;
+        }
+        return false;
+    });
 
     ExpressionCpp e(L"1 + y");
     EXPECT_THROW(e.evaluate(), std::exception);

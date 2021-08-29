@@ -48,7 +48,7 @@ namespace xpression {
         void addVariable(Variable* pVariable);
         void removeVariable(Variable* pVariable);
         VariableUpdater* getVariableUpdater();
-        void setVariableUpdater(VariableUpdater* pVariableUpdater);
+        void setVariableUpdater(VariableUpdater* pVariableUpdater, bool deleteIt = false);
         void setUserData(const UserData& userData);
         UserData& getUserData();
         void addExpressionEventHandler(ExpressionEventHandler* handler);

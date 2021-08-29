@@ -18,6 +18,7 @@ SET (PROJECT_SOURCE_FILES
 	VariableManager.h
 	VariableManager.cpp
 	VariableUpdater.h
+	VariableUpdater.cpp
 	xpression.h
 	xpression.cpp
 	ImmediateScope.h

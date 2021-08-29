@@ -193,8 +193,8 @@ namespace xpression {
         return _pVariableManager->getVariableUpdater();
     }
 
-    void ExpressionContext::setVariableUpdater(VariableUpdater* pVariableUpdater) {
-        _pVariableManager->setVariableUdater(pVariableUpdater);
+    void ExpressionContext::setVariableUpdater(VariableUpdater* pVariableUpdater, bool deleteIt) {
+        _pVariableManager->setVariableUdater(pVariableUpdater, deleteIt);
     }
 
     void ExpressionContext::setUserData(const UserData& userData) {

@@ -37,8 +37,8 @@ namespace xpression {
         return _pExpressionContext->getVariableUpdater();
     }
     
-    void ScopedExpresionContext::setVariableUpdater(VariableUpdater* pVariableUpdater) {
-        _pExpressionContext->setVariableUpdater(pVariableUpdater);
+    void ScopedExpresionContext::setVariableUpdater(VariableUpdater* pVariableUpdater, bool deleteIt) {
+        _pExpressionContext->setVariableUpdater(pVariableUpdater, deleteIt);
     }
 
     ScopedExpresionContext* ScopedExpresionContext::current() {

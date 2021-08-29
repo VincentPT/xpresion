@@ -75,7 +75,10 @@ namespace xpression {
         return _variableUpdateCallback;
     }
 
-    void VariableManager::setVariableUdater(VariableUpdater* pVariableUpdateCallback) {
+    void VariableManager::setVariableUdater(VariableUpdater* pVariableUpdateCallback, bool deleteIt) {
         _variableUpdateCallback = pVariableUpdateCallback;
+        if(deleteIt) {
+            _variableUpdateCallbackOwner.reset(_variableUpdateCallback);
+        }
     }
 }

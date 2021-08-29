@@ -38,21 +38,6 @@ const char* typeName(DataType dt) {
     }
 }
 
-class VariableUpdateMan : public xpression::VariableUpdater {
-    int _dataX;
-public:
-    VariableUpdateMan() {
-        _dataX = 2;
-    }
-    virtual bool onRequestUpdate(Variable* pVariable) {
-        if(!strcmp(pVariable->name,"x")) {
-            pVariable->dataPtr = &_dataX;
-            return true;
-        }
-        return false;
-    }
-};
-
 int main(int argc, char* argv[]) {
 
     // simple expression
@@ -153,10 +138,16 @@ int main(int argc, char* argv[]) {
 
         // variable 'x' don't need to provide value at declaration
         AutoVariable<int> x("x");
-
         // set up delay update for variable in current context
-        VariableUpdateMan delayUpdater;
-        scopedContext.setVariableUpdater(&delayUpdater);
+        int variableDataInSomeWhere = 2;
+        setVariableUpdater([&variableDataInSomeWhere](Variable* pVariable){
+            if(!strcmp(pVariable->name,"x")) {
+                variableDataInSomeWhere = 2;
+                pVariable->dataPtr = &variableDataInSomeWhere;
+                return true;
+            }
+            return false;
+        });
 
         const wchar_t* expStr = L"1 + x";
         ExpressionCpp e(expStr);
