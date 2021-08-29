@@ -175,4 +175,5 @@ using namespace std;
         // delay update will run before expression is evaluated
         e.evaluate();
         ...
+   }
 ```
