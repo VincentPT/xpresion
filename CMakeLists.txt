@@ -9,9 +9,11 @@ add_subdirectory(lib/ffscript/ffscript)
 add_subdirectory(lib/ffscript/ffscriptLibrary)
 # xpression project
 add_subdirectory(src)
-# xpression test project
-add_subdirectory(test)
 # using xpression in a sample project
 add_subdirectory(Sample)
+# xpression test project
+if (NOT SKIP_UNIT_TEST_BUILD) 
+    add_subdirectory(test)
+endif()
 
 configure_file(ffscript.cmake.in ${CMAKE_BINARY_DIR}/ffscript.cmake @ONLY)
