@@ -4,6 +4,7 @@
 namespace xpression {
     class ExcutionContext;
     class InternalExpressionCpp;
+    class VariableUpdater;
 
     class EXPRESSIONCPP_API ExpressionCpp {
         InternalExpressionCpp* _pInternalExpresion;
@@ -23,6 +24,7 @@ namespace xpression {
 
         void addVariable(struct Variable* pVariable);
         void fillVariable(const char* name, Variable* resultVariable);
+        void setVariableUpdater(VariableUpdater* pVariableUpdater, bool deleteIt = false);
     };
 
     EXPRESSIONCPP_API const char* getTypeName(DataType dt);

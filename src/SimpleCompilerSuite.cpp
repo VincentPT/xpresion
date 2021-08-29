@@ -34,8 +34,9 @@ namespace xpression {
 		}
 
 		// auto pop scope when the function exit
-		std::unique_ptr<ScriptCompiler, std::function<void(ScriptCompiler*)>> autoPopScope(
-			_pCompiler.get(),[pLocalScope](ScriptCompiler* compiler){
+		RaiiScopeExecutor autoPopScope(
+			[&](){
+				ScriptCompiler* compiler = _pCompiler.get();
 				compiler->popScope();
 				if(pLocalScope) {
 					compiler->popScope();
@@ -125,8 +126,8 @@ namespace xpression {
 		_pCompiler->bindProgram(temporaryProgram);
 
 		// delete temporaryProgram in case the script cannot compile
-		std::unique_ptr<Program, std::function<void(Program*)>> autoDeletor(
-			temporaryProgram,[&temporaryProgram](Program*){
+		RaiiScopeExecutor autoDeletor(
+			[&temporaryProgram](){
 				if(temporaryProgram) delete temporaryProgram;
 			});
 

@@ -43,6 +43,17 @@ namespace xpression {
         return "Unknown";
     }
 
+    class ExpressionLocalScope : public ImmediateScope {
+        InternalExpressionCpp* _context;
+        std::list<Variable> _variableContainer;
+    public:
+        ExpressionLocalScope(InternalExpressionCpp* pInternalExpression, ffscript::ScriptCompiler* scriptCompiler) :
+            ImmediateScope(scriptCompiler), _context(pInternalExpression) {}
+        ~ExpressionLocalScope() {}
+
+        ffscript::Variable* findVariable(const std::string& name);
+    };
+    
     class InternalExpressionCpp : public ExpressionEventHandler {
         friend class ExpressionCpp;
         ExpressionContext* _compilationContext;
@@ -57,7 +68,9 @@ namespace xpression {
         bool _evaluated;
         bool _needUpdateVariable;
     public:
-        InternalExpressionCpp(): _evaluated(false), _resultType(DataType::Unknown), _expressionScope(nullptr), _pVariableManager(nullptr)  {
+        InternalExpressionCpp(): _evaluated(false),
+            _resultType(DataType::Unknown), _expressionScope(nullptr),
+            _pVariableManager(nullptr), _needUpdateVariable(false)  {
             _compilationContext = ExpressionContext::getCurrentContext();
             if( _compilationContext == nullptr) {
                 throw std::runtime_error("No instance of ExpressionContext for current thread found");
@@ -65,8 +78,10 @@ namespace xpression {
             _compilationContext->addExpressionEventHandler(this);
 
             auto compilerSuite = _compilationContext->getCompilerSuite();
-            _expressionScope = new ImmediateScope(compilerSuite->getCompiler().get());
+            _expressionScope = new ExpressionLocalScope(this, compilerSuite->getCompiler().get());
             _expressionScope->setParent(compilerSuite->getGlobalScope());
+
+            _pVariableManager = new VariableManager(compilerSuite->getGlobalScope()->getContext());
         }
         ~InternalExpressionCpp() {
             if(_expressionScope) {
@@ -106,8 +121,8 @@ namespace xpression {
             globalScope->setBaseOffset(oldBaseOffset + _expressionScope->getDataSize());
 
             // auto restore base offset
-            std::unique_ptr<GlobalScope, std::function<void(GlobalScope*)>> autoRestoreBaseOffset(
-                globalScope,[oldBaseOffset](GlobalScope* globalScope){
+            RaiiScopeExecutor autoRestoreBaseOffset(
+                [globalScope, oldBaseOffset](){
                      globalScope->setBaseOffset(oldBaseOffset);
                 });
 
@@ -207,12 +222,9 @@ namespace xpression {
             _codeExecutor.reset();
         }
 
-        void addVariable(Variable* pVariable) {
-             auto compilerSuite = _compilationContext->getCompilerSuite();
-             auto globalScope = compilerSuite->getGlobalScope();
-            if(_pVariableManager == nullptr) {
-                _pVariableManager = new VariableManager(globalScope->getContext());
-            }
+        ffscript::Variable* addVariable(Variable* pVariable) {
+            auto compilerSuite = _compilationContext->getCompilerSuite();
+            auto globalScope = compilerSuite->getGlobalScope();
 
             if(pVariable->name == nullptr || pVariable->name[0] == 0) {
                 throw std::runtime_error("Variable name cannot be empty");
@@ -246,6 +258,8 @@ namespace xpression {
             _pVariableManager->addRequestUpdateVariable(pScriptVariable, pVariable->dataPtr == nullptr);
             // the variable now is register success, then it need evaluate before expression evaluate
             _needUpdateVariable = true;
+
+            return pScriptVariable;
         }
 
         void fillVariable(const char* name, Variable* resultVariable) {
@@ -275,7 +289,52 @@ namespace xpression {
 
             resultVariable->dataPtr = variableDataAddressDst;
         }
+
+        void setVariableUpdater(VariableUpdater* pVariableUpdater, bool deleteIt) {
+            _pVariableManager->setVariableUdater(pVariableUpdater, deleteIt);
+        }
+
+        VariableUpdater* getVariableUpdater() {
+            if(_pVariableManager == nullptr) return nullptr;
+
+            return _pVariableManager->getVariableUpdater();
+        }
     };
+    
+    ffscript::Variable* ExpressionLocalScope::findVariable(const std::string& name) {
+        auto pVariable = ImmediateScope::findVariable(name);
+        if(pVariable) return pVariable;
+
+        auto variableUpdater =_context->getVariableUpdater();
+        if(variableUpdater == nullptr) return nullptr;
+
+        ffscript::Variable* result = nullptr;
+        _variableContainer.push_back({0});
+        xpression::Variable& variable = _variableContainer.back();
+
+        RaiiScopeExecutor autoCheckResult([&](){
+            if(result) {
+                // update variable name
+                // point variable name to an allocated buffer
+                variable.name = result->getName().c_str();
+            }
+            else {
+                // remove the temporary variable due to unsuccessful operation
+                _variableContainer.pop_back();
+            }
+        });
+        
+        variable.name = name.c_str();
+        if(!variableUpdater->onRequestUpdate(&variable)) {
+            return nullptr;
+        }
+        if(variable.type == DataType::Unknown) {
+            throw std::runtime_error("the variable '" + name + "' need to specify type when the script is being compiled");
+        }
+        variable.dataSize = typeSize(variable.type);
+        result = _context->addVariable(&variable);
+        return result;
+    }
 
     ExpressionCpp::ExpressionCpp(const wchar_t* expStr) {
         _pInternalExpresion = new InternalExpressionCpp();
@@ -328,5 +387,9 @@ namespace xpression {
 
     void ExpressionCpp::fillVariable(const char* name, Variable* resultVariable) {
         _pInternalExpresion->fillVariable(name, resultVariable);
+    }
+
+    void ExpressionCpp::setVariableUpdater(VariableUpdater* pVariableUpdater, bool deleteIt) {
+        _pInternalExpresion->setVariableUpdater(pVariableUpdater, deleteIt);
     }
 }

@@ -6,6 +6,7 @@
 namespace xpression {
     class ExpressionContext;
     class VariableUpdater;
+    class ExpressionCpp;
 
     class EXPRESSIONCPP_API ScopedExpresionContext {
         ExpressionContext* _pExpressionContext;
@@ -31,5 +32,10 @@ namespace xpression {
             throw std::runtime_error("There is no expression context in the current scope");
         }
         context->setVariableUpdater(new FunctionalVariableUpdater<Ft>(std::move(fx)), true);
+    }
+
+    template <class Ft>
+    void setVariableUpdater(ExpressionCpp* e, Ft&& fx) {
+        e->setVariableUpdater(new FunctionalVariableUpdater<Ft>(std::move(fx)), true);
     }
 }

@@ -27,6 +27,30 @@ TEST(ExpressionCpp, testLocalVariable2) {
     EXPECT_EQ(4.0, e.getResultDouble());
 }
 
+TEST(ExpressionCpp, testLocalVariableDelayDeclaration) {
+    ScopedExpresionContext scopedContext;
+    ExpressionCpp e(L"1 + x");
+
+    int variableDataInSomeWhere = 0;
+    setVariableUpdater(&e, [&variableDataInSomeWhere](Variable* pVariable){
+        if(!strcmp(pVariable->name,"x")) {
+            variableDataInSomeWhere = 2;
+            // delay declaration need to specify type
+            // variable type need while compiling script
+            pVariable->type = DataType::Integer;
+            // delay updation need to specify data
+            // variable data need while evaluating script
+            pVariable->dataPtr = &variableDataInSomeWhere;
+            return true;
+        }
+        return false;
+    });
+
+    e.evaluate();
+
+    EXPECT_EQ(3, e.getResultInt());
+}
+
 TEST(ExpressionCpp, testLocalVariableWithScript) {
     XVariable<double> x("x", 3.0);
 

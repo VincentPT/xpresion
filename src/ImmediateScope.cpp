@@ -8,13 +8,6 @@ namespace xpression {
 
     ImmediateScope::~ImmediateScope() {}
 
-    Variable* ImmediateScope::findVariable(const std::string& name) {
-        auto pVariable = ScriptScope::findVariable(name);
-
-
-        return pVariable;
-    }
-
     const wchar_t* ImmediateScope::parse(const wchar_t* text, const wchar_t* end) {
         throw std::runtime_error("ImmediateScope::parse is not implemented");
     }
