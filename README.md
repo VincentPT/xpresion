@@ -178,3 +178,43 @@ using namespace std;
         ...
    }
 ```
+# Build project
+The project mainly use CMake to generated project files for native compilers such as Visual Studio, XCode, make file.  
+In order to compile the main projects use following commands:  
+```
+mkdir build
+cd build
+cmake .. -DSKIP_UNIT_TEST_BUILD -DFFSCRIPT_EXCLUDE_THREAD
+cmake --build . --config Release
+```
+
+In case you need to compile unit test project, you also need 'conan' installed on your system and folow below section to download gtest for the project.   
+## Build steps
+1. Add dependencies remote repositories  
+ You may need to add 'bincrafters' into conan remote repositories.  
+```
+conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
+```
+2. Create dependencies directory.  
+change directory to 'lib/ffscript/gtest' and create 'conan' directory.
+
+3. Install dependencies.  
+This project uses multi-configurations on Windows, so use following commands.  
+```
+conan install .. -g cmake_multi -s arch=x86 -s build_type=Release
+conan install .. -g cmake_multi -s arch=x86 -s build_type=Debug
+conan install .. -g cmake_multi -s arch=x86_64 -s build_type=Release
+conan install .. -g cmake_multi -s arch=x86_64 -s build_type=Debug
+```
+
+For Linux(test on Ubuntu 16.04).  
+```
+conan install .. --build missing -s compiler.libcxx=libstdc++11
+```
+4. Compile whole project.  
+```
+mkdir build
+cd build
+cmake .. -DFFSCRIPT_EXCLUDE_THREAD
+cmake --build . --config Release
+```
