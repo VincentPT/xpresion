@@ -1,5 +1,6 @@
 #include "ScopedExpresionContext.h"
 #include "ExpressionContext.h"
+#include "VariableUpdater.h"
 
 namespace xpression {
     ScopedExpresionContext::ScopedExpresionContext(int stackSize) {

@@ -1,5 +1,6 @@
 #pragma once
-#include "xpression.h"
+#include "xpressionapi.h"
+#include "StaticVariable.h"
 
 namespace xpression {
     class ExcutionContext;

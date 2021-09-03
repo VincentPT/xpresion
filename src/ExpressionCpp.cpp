@@ -1,9 +1,11 @@
 #include "ExpressionCpp.h"
+#include "DataType.h"
 #include "SimpleCompilerSuite.h"
 #include "ExpressionContext.h"
 #include "xutility.h"
 #include "ImmediateScope.h"
 #include "VariableManager.h"
+#include "xpression.hpp"
 #include <Utils.h>
 
 #include <exception>

@@ -1,5 +1,4 @@
-#include "xpression.h"
-#include "StaticVariable.h"
+#include "xpression.hpp"
 
 namespace xpression {
     template <>
