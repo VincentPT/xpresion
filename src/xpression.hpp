@@ -99,12 +99,8 @@ namespace xpression {
     };
 
     template <class Ft>
-    void setVariableUpdater(Ft&& fx) {
-        auto context = ScopedExpresionContext::current();
-        if(context == nullptr) {
-            throw std::runtime_error("There is no expression context in the current scope");
-        }
-        context->setVariableUpdater(new FunctionalVariableUpdater<Ft>(std::move(fx)), true);
+    void setVariableUpdater(ScopedExpresionContext* ctx, Ft&& fx) {
+        ctx->setVariableUpdater(new FunctionalVariableUpdater<Ft>(std::move(fx)), true);
     }
 
     template <class Ft>

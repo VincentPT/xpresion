@@ -140,7 +140,7 @@ int main(int argc, char* argv[]) {
         AutoVariable<int> x("x");
         // set up delay update for variable in current context
         int variableDataInSomeWhere = 2;
-        setVariableUpdater([&variableDataInSomeWhere](Variable* pVariable){
+        setVariableUpdater(&scopedContext, [&variableDataInSomeWhere](Variable* pVariable){
             if(!strcmp(pVariable->name,"x")) {
                 variableDataInSomeWhere = 2;
                 pVariable->dataPtr = &variableDataInSomeWhere;
@@ -167,7 +167,7 @@ int main(int argc, char* argv[]) {
         ScopedExpresionContext scopedContext(1024);
 
         int x, y, z;
-        setVariableUpdater([&](Variable* pVariable){
+        setVariableUpdater(&scopedContext, [&](Variable* pVariable){
             if(!strcmp(pVariable->name,"x")) {
                 x = 1;
                 // delay declaration need to specify type.

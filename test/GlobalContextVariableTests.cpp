@@ -24,7 +24,7 @@ TEST(ExpressionCpp, testExpresionWithDelayUpdateVarialbe)
     scopedContext.addVariable(x.get());
 
     int variableDataInSomeWhere = 0;
-    setVariableUpdater([&variableDataInSomeWhere](Variable* pVariable){
+    setVariableUpdater(&scopedContext, [&variableDataInSomeWhere](Variable* pVariable){
         if(!strcmp(pVariable->name,"x")) {
             variableDataInSomeWhere = 2;
             pVariable->dataPtr = &variableDataInSomeWhere;
@@ -47,7 +47,7 @@ TEST(ExpressionCpp, testExpresionWithDelayUpdateVarialbeNotFound)
     scopedContext.addVariable(x.get());
 
     int variableDataInSomeWhere = 0;
-    setVariableUpdater([&variableDataInSomeWhere](Variable* pVariable){
+    setVariableUpdater(&scopedContext, [&variableDataInSomeWhere](Variable* pVariable){
         if(!strcmp(pVariable->name,"x")) {
             variableDataInSomeWhere = 2;
             pVariable->dataPtr = &variableDataInSomeWhere;
@@ -64,7 +64,7 @@ TEST(ExpressionCpp, testExpresionWithDelayDeclareVarialbe)
 {
     ScopedExpresionContext scopedContext;
     int variableDataInSomeWhere = 0;
-    setVariableUpdater([&variableDataInSomeWhere](Variable* pVariable){
+    setVariableUpdater(&scopedContext, [&variableDataInSomeWhere](Variable* pVariable){
         if(!strcmp(pVariable->name,"x")) {
             variableDataInSomeWhere = 2;
             // delay declaration need to specify type
@@ -88,7 +88,7 @@ TEST(ExpressionCpp, testExpresionWithDelayDeclareVarialbeWithScript)
 {
     ScopedExpresionContext scopedContext;
     int variableDataInSomeWhere = 0;
-    setVariableUpdater([&variableDataInSomeWhere](Variable* pVariable){
+    setVariableUpdater(&scopedContext, [&variableDataInSomeWhere](Variable* pVariable){
         if(!strcmp(pVariable->name,"x")) {
             variableDataInSomeWhere = 2;
             // delay declaration need to specify type
@@ -118,7 +118,7 @@ TEST(ExpressionCpp, testExpresionWithDelayDeclareVarialbeFailed)
 {
     ScopedExpresionContext scopedContext;
     int variableDataInSomeWhere = 0;
-    setVariableUpdater([&variableDataInSomeWhere](Variable* pVariable){
+    setVariableUpdater(&scopedContext, [&variableDataInSomeWhere](Variable* pVariable){
         if(!strcmp(pVariable->name,"x")) {
             variableDataInSomeWhere = 2;
             pVariable->type = DataType::Integer;
