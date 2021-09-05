@@ -1,6 +1,6 @@
 
 #include "xpression.h"
-
+#include <string.h>
 #include <iostream>
 
 using namespace xpression;

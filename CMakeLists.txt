@@ -10,7 +10,7 @@ add_subdirectory(lib/ffscript/ffscriptLibrary)
 # xpression project
 add_subdirectory(src)
 # using xpression in a sample project
-add_subdirectory(Sample)
+add_subdirectory(sample)
 # xpression test project
 if (NOT SKIP_UNIT_TEST_BUILD) 
     add_subdirectory(test)

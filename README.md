@@ -215,6 +215,6 @@ conan install .. --build missing -s compiler.libcxx=libstdc++11
 ```
 mkdir build
 cd build
-cmake .. -DFFSCRIPT_EXCLUDE_THREAD
+cmake .. -DFFSCRIPT_EXCLUDE_THREAD=ON
 cmake --build . --config Release
 ```

@@ -3,6 +3,7 @@
 #include "ScopedExpresionContext.h"
 #include "VariableUpdater.h"
 #include "ExpressionCpp.h"
+#include <stdexcept>
 
 namespace xpression {
     template <typename T>

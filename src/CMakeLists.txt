@@ -29,7 +29,12 @@ SET (PROJECT_SOURCE_FILES
 	ExpressionInternal.cpp
 )
 
-add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCE_FILES})
+else ()
+  add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
+endif()
+
 add_definitions(-DEXPORT_EXPRESSIONCPP)
 target_link_libraries(${PROJECT_NAME} PRIVATE ffscriptLibrary)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
